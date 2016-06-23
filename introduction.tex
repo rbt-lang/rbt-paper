@@ -1,0 +1,191 @@
+
+\section{Introduction}
+
+In computer science, the term \emph{combinator} is used in a narrow and a broad
+sense.  In a narrow definition, a combinator is any expression with no free
+variables.  That is to say, a combinator expression has its value completely
+determined by its structure.
+
+In a broad sense, \emph{combinator pattern} is a technique for designing
+domain-specific languages (DSLs), which prescribes us to model programs in
+terms of self-contained composable processing blocks.  These blocks should
+either come from a set of predefined atomic \emph{primitives} or be constructed
+from other blocks as \emph{composites}.  Operations that combine blocks to make
+composite blocks are often called combinators, which gave the name to the
+technique, but it is the fact that that every block is self-contained that
+connects this usage of the term with the narrow definition.  Going forward, we
+will refer to individual blocks as well as the operations that combine them as
+combinators.
+
+A combinator-based DSL is defined by its three constituents: interface,
+primitives and composites.
+
+\begin{enumerate}
+\item
+The interface is a type or a type family that characterizes DSL programs.
+\item
+Primitive combinators are atomic programs, irreducible processing blocks from
+which every program must be constructed.
+\item
+Specific rules for how programs can be combined together to form a composite
+program are prescribed by compositing combinators.
+\end{enumerate}
+
+The combinator pattern gives us a roadmap for a design of a database query
+language:
+
+\begin{enumerate}
+\item
+Define the query interface.
+\item
+Describe the set of primitive queries.
+\item
+Describe operations (combinators) for making composite queries.
+\end{enumerate}
+
+A query pulls data from a database, so before we can define what a query is, we
+need to understand how data is structured by the database.  Undestanding of a
+database structure requires three concepts: database model, database schema and
+database instance.
+
+A database model is a set of rules for describing database structure.  In this
+document, we will refer to three models: relational, hierarchical and
+categorical.  The structure of a particular database is called its schema and a
+snapshot of its content is called its instance.
+
+As a starting point, we use the categorical database model.  In this model,
+database schema is represented as a directed graph with nodes and arcs of the
+graph specifying how data is structured in the database.  Namely, the nodes
+correspond to types of entities and types of attribute values; the arcs
+correspond to entity attributes and relationships between entities.  A database
+instance represents data by mapping the nodes and the arcs of the schema graph
+to sets (of entities or values) and functions on sets (that map entities to
+attribute values or related entities).
+
+Let us demonstrate this model on a textbook example of a ``departments \&
+employees'' database schema.
+
+The schema graph contains four nodes; two of them represent a class of
+department entities and a class of employee entities:
+
+\begin{equation*}
+\textsf{Dept}, \qquad \textsf{Empl}
+\end{equation*}
+
+The other two represent the type of text values and the type of integer values:
+
+\begin{equation*}
+\textsf{Text}, \qquad \textsf{Int}
+\end{equation*}
+
+An arc of the schema graph connecting two entity classes represents a
+relationship between entities of these classes.  An arc connecting an entity
+class to a value type corresponds to an entity attribute.  In this schema, we
+see a text attribute of the department entity:
+
+\begin{equation*}
+\textsf{name} : \textsf{Dept} \to \textsf{Text}
+\end{equation*}
+
+a collection of attributes of the employee entity:
+
+\begin{alignat*}{2}
+& \textsf{name} & \;:\; & \textsf{Empl} \to \textsf{Text} \\
+& \textsf{surname} & \;:\; & \textsf{Empl} \to \textsf{Text} \\
+& \textsf{position} & \;:\; & \textsf{Empl} \to \textsf{Text} \\
+& \textsf{salary} & \;:\; & \textsf{Empl} \to \textsf{Int}
+\end{alignat*}
+
+and a relationship that maps each employee to the respective department:
+
+\begin{equation*}
+\textsf{department}: \textsf{Empl} \to \textsf{Dept}
+\end{equation*}
+
+Now, we have enough to define the query interface:
+
+\begin{equation*}
+\textsf{Query}\{A,B\} := A \to B
+\end{equation*}
+
+Here, each of the parameters $A$ and $B$ is either a value type or an entity
+class.
+
+This definition immediately gives us a set of primitives and one composition
+operation.  Indeed, each arc of the schema graph becomes a primitive query,
+and, given two queries with compatible inputs and outputs,
+\begin{equation*}
+f: A \to B, \qquad g: B \to C
+\end{equation*}
+we can combine then using function composition:
+\begin{align*}
+&f{.}g : A \to C \\
+&f{.}g : a \mapsto g(f(a))
+\end{align*}
+
+Let us demonstrate this operation on the sample schema.  We take two primitive
+queries, $\textsf{department}$, which maps any employee entity to the
+respective department, and $\textsf{name}$, which maps a department entity to
+the department name:
+
+\begin{alignat*}{3}
+& \textsf{department} &\;:\;& \textsf{Empl} &\;\to\;& \textsf{Dept} \\
+& \textsf{name} &\;:\;& \textsf{Dept} &\;\to\;& \textsf{Text}
+\end{alignat*}
+
+The composition $\textsf{department}.\textsf{name}$ of these two
+queries maps an employee entity to the name of their department:
+
+\begin{equation*}
+\textsf{department}{.}\textsf{name}: \textsf{Empl} \to \textsf{Text}
+\end{equation*}
+
+Our definition of the query interface may seem unusual.  It appears that to get
+any output from a query, we need to supply it with some input, which does not
+match the conventional notion of a database query that runs and produces a
+result with no input required.  We did construct a query that finds \emph{the
+name of the department given an employee}, but can we express a query that
+finds \emph{the total number of employees}?
+
+To reconcile the query interface with the conventional notion of a database
+query, we introduce a designated singleton type $\textsf{Void}$, which contains
+exactly one value $\textsf{nothing}:\textsf{Void}$.  Then a query with no input
+can be expressed as a mapping from the $\textsf{Void}$ type.  The query result
+can be obtained by submitting the value $\textsf{nothing}$ for the query input.
+
+For example, let us build a query that finds \emph{the total number of
+employees}.  We can already guess the signature of this query:
+
+\begin{equation*}
+\textsf{Void} \to \textsf{Int}
+\end{equation*}
+
+We start with a new primitive, $\textsf{employee}$, which produces a sequence
+of all employee entities:
+
+\begin{align*}
+& \textsf{employee} : \textsf{Void} \to \textsf{Seq}\{\textsf{Empl}\} \\
+& \textsf{employee} : \textsf{nothing} \mapsto [e_1, e_2, \ldots]
+\end{align*}
+
+Here, $\textsf{Seq}\{A\}$ is a parametric sequence type, which is used
+when a query produces a sequence of values.
+
+To count the number of employees, we will use combinator $\textsf{count}$,
+which has the following signature:
+
+\begin{equation*}
+\textsf{count} : (A \to \textsf{Seq}\{B\}) \to (A \to \textsf{Int})
+\end{equation*}
+
+The signature indicates that $\textsf{count}$ transforms any sequence-valued
+query to an integer-valued query, that is, $\textsf{count}(Q)$ returns the
+number of elements produced by the query $Q$.
+
+Applying $\textsf{count}$ to $\textsf{employee}$, we get the query that counts
+the total number of employees:
+
+\begin{equation*}
+\textsf{count}(\textsf{employee}) : \textsf{Void} \to \textsf{Int}
+\end{equation*}
+
