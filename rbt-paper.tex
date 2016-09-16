@@ -1,10 +1,24 @@
 \documentclass{sig-alternate-10}
-
+\usepackage{tikz}
+\usetikzlibrary{arrows,positioning}
 \def\sharedaffiliation{\end{tabular}\newline\begin{tabular}{c}}
+\newtheorem{example}{Example}[section]
+\newcommand{\keyword}[1]{\textup{\textsf{#1}}}
+\newcommand{\Dept}{\keyword{Dept}}
+\newcommand{\Emp}{\keyword{Emp}}
+\newcommand{\Text}{\keyword{Text}}
+\newcommand{\Int}{\keyword{Int}}
+\newcommand{\Department}{\keyword{department}}
+\newcommand{\Employee}{\keyword{employee}}
+\newcommand{\Name}{\keyword{name}}
+\newcommand{\Position}{\keyword{position}}
+\newcommand{\Salary}{\keyword{salary}}
+\newcommand{\Manager}{\keyword{manager}}
+\newcommand{\Subordinate}{\keyword{subordinate}}
 
 \begin{document}
 
-\title{Querying with Combinators}
+\title{Query Combinators}
 
 \numberofauthors{2}
 \author{
@@ -12,14 +26,15 @@
     \alignauthor Kyrylo Simonov \\ \email{xi@resolvent.net}
     \sharedaffiliation
     \affaddr{Prometheus Research, LLC} \\
-    \affaddr{55 Church St., Suite 700} \\
-    \affaddr{New Haven, CT 06510}
 }
 
 \maketitle
 
 \input{abstract}
 \input{introduction}
+
+\bibliographystyle{abbrv}
+\bibliography{rbt-paper}
 
 \end{document}
 

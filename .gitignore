@@ -1,4 +1,6 @@
 .*.sw?
 *.log
 *.aux
+*.bbl
+*.blg
 *.pdf
