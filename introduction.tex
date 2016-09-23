@@ -1,80 +1,46 @@
 
 \section{Introduction}
+\label{sec:introduction}
 
-\emph{Combinator pattern} (\cite{Barrientos2009}) is a technique for designing
-domain-specific languages (DSLs), which prescribes us to model programs in
-terms of self-contained domain-specific composable processing blocks.  These
-blocks should either come from a set of predefined atomic \emph{primitives} or
-be constructed from other blocks using block operations that are called
-\emph{combinators}.  To describe a combinator-based DSL, we define its three
-components: domain interface, primitives and combinators.
+\emph{Combinator pattern} is a well-known technique for designing declarative
+domain-specific languages (DSLs). This technique views a DSL as an algebra of
+self-con\-tained processing blocks, which either come from a set of predefined
+atomic \emph{primitives} or are constructed from other blocks using block
+operators (combinators).  Using the combinator pattern, a DSL is specified by:
+the interface of its processing blocks, a set of primitives, and a collection
+of combinators.
 
-\begin{enumerate}
-\item
-Domain interface is a type or a type family that characterizes DSL programs.
-Usually domain interface takes the form of some particular functional type.
-\item
-A primitive is an atomic program, an irreducible processing block that can
-serve as a basis for other DSL programs.  Typically, the core set of primitives
-naturally arises from the problem domain.
-\item
-A combinator is a rule for combining DSL programs together to form a new
-composite program.  Combinators are often represented as higher-order
-functions.
-\end{enumerate}
-
-The combinator pattern gives us a roadmap for a design of a database query
-language:
+The combinator pattern gives us a roadmap to design a database query language:
 
 \begin{enumerate}
 \item
-Define the query interface.
+Define the interface of a database query.
 \item
 Describe the set of primitive queries.
 \item
-Describe operations (combinators) for making composite queries.
+Describe combinators for making composite queries.
 \end{enumerate}
 
-To elaborate on these ideas and to demonstrate example queries, we need some
-sample structured data.  Throughout this paper, we employ the following
-textbook database schema.
-
-The sample database contains two classes of entities: \emph{departments} and
-\emph{employees}.
-
-\begin{itemize}
-\item
+To elaborate on this idea and to demonstrate example queries, we need some
+sample structured data.  Throughout this paper, we use a simple database that
+contains just two classes of entities: \emph{departments} and \emph{employees}.
 Each department entity has one attribute: \emph{name}.
-\item
 Each employee entity has three attributes: \emph{name}, \emph{position} and
 \emph{salary}.
-\item
 Each employee belongs to a department.
-\item
-Some employees may have a manager, who is also an employee.
-\end{itemize}
+An employee may have a \emph{manager}, who is also an employee.
 
-We can picture the structure of this database as a directed graph.  We place
-entity classes and attribute types as graph nodes, which lets us draw entity
-attributes and relationships as graph arrows (see
-figure~\ref{fig:sample-schema}).  This diagram has a straightforward
-interpretation in the category of sets, which goes as follows.  Graph nodes
-represent sets: entity sets
-\begin{equation*}
-    \Dept, \qquad \Emp
-\end{equation*}
-and value sets
-\begin{equation*}
-    \Text, \qquad \Int.
-\end{equation*}
-Accordingly, graph arrows represent functions that store data on attributes and
-relationships:
-\begin{alignat*}{6}
-    & \Name && : \Dept && \to \Text, && \quad \Name && : \Emp && \to \Text, \\
-    & \Position && : \Emp && \to \Text, && \quad \Salary && : \Emp && \to \Int, \\
-    & \Department && : \Emp && \to \Dept, && \quad \Manager && : \Emp && \to \Emp.
+The structure of this database can be visualized as a directed graph, where entity
+classes and attribute types become graph nodes, while attributes and relationships
+become arcs (see Figure~\ref{fig:sample-schema}).  This diagram
+suggests presentation of the database in terms of types and functions.
+Namely, graph arcs represent functions that store data about attributes and
+relationships, such as
+\begin{alignat*}{3}
+    & \Department && : \Emp && \to \Dept, \\
+    & \Name && : \Dept && \to \Text.
 \end{alignat*}
-This is known as functional database model (\cite{Kerschberg1976}).
+This is known as the functional database model (\cite{Kerschberg1976}).
 
 \begin{figure}
     \label{fig:sample-schema}
@@ -104,12 +70,11 @@ This is known as functional database model (\cite{Kerschberg1976}).
     \caption{Sample database schema}
 \end{figure}
 
-Functional database model appears to be a good candidate for a foundation
-of a combinator-based query language.  Indeed, we can declare that any
-function on an entity set is a database query.  Then for each database schema,
-its attributes and relationships form a collection of primitive queries.
-Composition of functions becomes a binary query combinator.  With these
-considerations, we can write our first composite query.
+This model provides us with a starting point on our combinator pattern roadmap.
+Any function on an entity set could be seen as a database query.  Then, all the
+attributes and relationships form a set of primitive queries.  Composition of
+functions becomes a binary query combinator.  With these considerations, we can
+write our first composite query.
 
 \begin{example}
     Given an employee entity, show the name of their department.
@@ -122,76 +87,62 @@ In this example, $\Department{.}\Name$ is a query written in Rabbit notation,
 $\Emp \to \Text$ is its signature.  The period $({.})$ denotes the composition
 combinator, which is a polymorphic binary operator with signature
 \begin{equation*}
-        ({.}) : (A \to B) \times (B \to C) \to (A \to C).
+        (-{.}-) : (A \to B) \times (B \to C) \to (A \to C).
 \end{equation*}
 
-Is this a viable foundation for a query language?  The approach looks
-promising, but it's clear it has some major flaws.  Let us discuss them.
+Even though we got a query interface, a set of primitives and one query
+combinator, it doesn't yet feel like a proper query language.  Let us discuss
+what is missing.
 
 First, it is awkward that the query interface always demands an input.  It
-means that we cannot express an input-free query like \emph{Show a list of all
-departments}.  Moreover, queries would be impossible to execute if to run any
-query, we'd need to give it an entity object, and an entity object could only
-be obtained as a query output.
+means that we cannot express an input-free query like \emph{show a list of all
+departments}.
 
-Second, relationships between entities got a direction arbitrarily assigned to
-them.  Indeed, we chose to encode connection between departments and employees
-as a primitive with input $\Emp$ and output $\Dept$.  But this connection is
-symmetric and we may just as well be interested in finding, for any given
-department, the corresponding set of employees.  However, this inverse
-direction cannot be encoded as a query because it would lack a valid signature.
-We could attempt to introduce a primitive
-\begin{equation*}
-    \Employee: \Dept \to \Emp,
-\end{equation*}
-but its signature would incorrectly imply that there is exactly one employee
-per department.  The query interface is unable to express multivalued or
-\emph{plural} relationships.
+Further, relationships between entities got a direction arbitrarily assigned to
+them.  Indeed, we chose to encode the relationship between departments and
+employees as a primitive with input $\Emp$ and output $\Dept$.  But this
+relationship is symmetric and we may just as well be interested in finding,
+\emph{for any given department, the corresponding set of employees}.  This
+query cannot be encoded as a function because its signature $\Dept \to \Emp$
+would incorrectly imply that there is exactly one employee per department.  The
+query interface is unable to express multivalued or \emph{plural}
+relationships.
 
 The interface also fails to capture the semantics of \emph{optional} attributes
 and relationships.  Such is the relationship between employees and their
-managers, which we encoded by primitive
-\begin{equation*}
-    \Manager: \Emp \to \Emp.
-\end{equation*}
-But its signature implies that every employee must have a manager, which is
-evidently incorrect.  Apparently, pure functional interface is too restrictive
-to express the variety of relationships between database entities.
+managers, which, according to Figure~\ref{fig:sample-schema}, is encoded by
+a primitive with signature $\Emp \to \Emp$.
+But this signature implies that every employee must have a manager, which is
+untrue.  Apparently, pure functional interface is too restrictive to express
+the variety of relationships between database entities.
 
-To overcome these difficulties, we take the following course of action:
-\begin{enumerate}
-\item
-Extend functional query interface so that it could support optional and plural
-values.
-\item
-Add primitives that encode whole entity classes as well as inverse
-relationships.
-\item
-Define combinators for common data operations: aggregation, filtering,
-grouping, etc.
-\end{enumerate}
+To improve this sketch of a query language, we will extend the query interface
+to support optional and plural values, add primitives to express entity classes
+and inverse relationships and implement common data operations in a
+comprehensive library of query combinators.
 
 This paper is organized as follows.
 
-In Section~2, we introduce query cardinality as a mo\-nadic wrapper over its
-output type, which allows us to complete our collection of primitive queries.
-We also show how any database can be unfolded to the hierarchical form.
+In Section~\ref{sec:cardinality}, we introduce query cardinality as a mo\-nadic
+wrapper over its output type, which will allow us to complete our set of
+primitive queries.  We also show how any database can be unfolded to the
+hierarchical form.
 
 In Section~3, we define and demonstrate how to use combinators for data
-traversal, aggregation, filtering and output selection.
+traversal, aggregation, filtering, sorting and pagination.
 
-In Section~4, we define quotient types and show how to use them for
-grouping and cube operations.
-
-In Section~5, we introduce combinators for exploring hierarchical
+In Section~4, we introduce combinators for exploring hierarchical
 relationships.
+
+In Section~5, we define quotient types and show how to use them for grouping
+and cube operations.
 
 In Section~6, we show how to extend the query interface with comonadic wrapper
 over its input type to support context-aware combinators.  This gives us
-ability to express queries with running aggregates and queries with parameters.
+ability to express queries with running aggregates and parametric queries.
 
 In Section~7, we formally describe the query interface and the composition
 combinator.
 
-In Section~8, we briefly discuss some related works.
+In Section~8, we briefly discuss some related work.
 
