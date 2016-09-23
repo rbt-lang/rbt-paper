@@ -1,23 +1,20 @@
 
 \begin{abstract}
-    We introduce Rabbit, a combinator-based database query language.  It is
-    designed for data analysts and other accidental programmers to let them
-    query complex structured data.
+    We introduce Rabbit, a combinator-based query language.  Rabbit is designed
+    for data analysts and other accidental programmers to let them query
+    complex structured data.
 
-    Rabbit features a novel semantics of a database query and query
-    composition.  A query is represented as a mapping with certain input type,
-    output type and cardinality.  Notably, query cardinality is modeled as a
-    monadic wrapper over its output type, which is what makes Rabbit queries
-    highly composable and let it express common data operations as \emph{query
-    combinators}.  In particular, monadic composition becomes a data traversal
-    combinator.  Other combinators express operations for aggregating,
-    filtering, grouping, sorting and paginating data, cube operations and
-    operations on self-referential data.  By extending the query model with a
-    comonadic wrapper over its input type, we can express queries with running
-    aggregates and parametric queries.  Aside from semantics, Rabbit features
-    pipeline syntax notation, which permits and stimulates the users to
-    construct database queries as a series of distinct steps, each individually
-    crafted and tested.  We believe that for data analytics, Rabbit presents a
-    viable alternative to SQL.
+    Rabbit features new query semantics, in which a query is represented as a
+    function with certain input type, output type and cardinality.  Notably,
+    query cardinality is modeled as a monadic structure over its output type,
+    with monadic composition giving us a data traversal combinator.  Other
+    \emph{query combinators} express operations for aggregating, filtering,
+    grouping, sorting and paginating data, cube operations and operations on
+    self-referential data.  By extending the query model with a comonadic
+    structure over its input type, we can express queries with running aggregates
+    and queries with parameters.  Rabbit semantics enables pipeline notation,
+    encouraging its users to construct database queries as a series of distinct
+    steps, each individually crafted and tested.  We believe that for data
+    analytics, Rabbit presents a superior alternative to SQL.
 \end{abstract}
 
