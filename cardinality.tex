@@ -1,0 +1,285 @@
+
+\section{Query Cardinality}
+\label{sec:cardinality}
+
+\begin{figure*}
+    \label{fig:hierarchical-form}
+    \centering
+    \begin{forest}
+        void/.style = {
+            draw, circle},
+        map/.style = {
+            draw, rectangle, rounded corners=2mm,
+            minimum width=1.5cm, minimum height=.5cm,
+            text height=1.5ex, text depth=.25ex,
+            font=\small\sffamily},
+        blank/.style = {
+            no edge},
+        more/.style = {
+            rectangle, minimum height=.5cm,
+            edge={-{stealth'}}},
+        singular/.style = {
+            edge={-}},
+        optional/.style = {
+            edge={-{Circle[open,length=3.5pt]}}},
+        plural/.style = {
+            edge={-{Straight Barb[reversed,length=3.5pt]}, shorten >=-0.3pt}},
+        for tree = {
+            parent anchor=south,
+            child anchor=north,
+            edge path={
+                \noexpand\path[\forestoption{edge}](!u.parent anchor) -- +(0,-4pt) -| (.child anchor)\forestoption{edge label};}}
+        [{},void
+            [department,map,plural
+                [name,map,singular]
+                [employee,map,plural
+                    [name,map,singular]
+                    [\dots,blank]
+                    [department,map,singular
+                        [\dots,more]
+                        [\dots,more]]
+                    [\dots,blank]
+                    [subordinate,map,plural
+                        [\dots,more]
+                        [\dots,blank]
+                        [\dots,more]]]]
+            [employee,map,plural
+                [name,map,singular]
+                [position,map,singular]
+                [salary,map,singular]
+                [department,map,singular
+                    [name,map,singular]
+                    [employee,map,plural
+                        [\dots,more]
+                        [\dots,blank]
+                        [\dots,more]]]
+                [manager,map,optional
+                    [\dots,more]
+                    [\dots,blank]
+                    [\dots,more]]
+                [subordinate,map,plural
+                    [\dots,more]
+                    [\dots,blank]
+                    [\dots,more]]]]
+    \end{forest}
+    \caption{Database schema in hierarchical form}
+\end{figure*}
+
+In Section~\ref{sec:introduction}, we suggested that any function defined on an
+entity set can be seen as a query.  However, this query model failed to
+represent optional and plural relationships as well as queries without apparent
+input.  In this section, we resolve these issues by introducing the notion of
+\emph{query cardinality}.
+
+We found it difficult to model these two relationships:
+
+\begin{enumerate}[(i)]
+\item \label{itm:employee-to-manager}
+\emph{An employee may report to another employee, the manager.}
+
+\item \label{itm:department-to-employee}
+\emph{Any department has a number of associated employees.}
+\end{enumerate}
+
+We were also puzzled on how to express input-free queries such as:
+
+\begin{enumerate}[(i)]
+\setcounter{enumi}{2}
+\item \label{itm:department-set}
+\emph{Show a list of all departments.}
+\end{enumerate}
+
+Let us start with relationships~(\ref{itm:employee-to-manager})
+and~(\ref{itm:department-to-employee}).  Expressing them as queries with
+signatures
+\begin{equation*}
+    \Emp \to \Emp, \qquad \Dept \to \Emp
+\end{equation*}
+would imply exactly one output value for any input.  But an employee may have
+no manager, and a department may have more than one employee.
+
+In programming practice, optional and plural values are stored using container
+types.  So let us define two parametric types: $\Opt{A}$ as a zero or one value
+of type $A$ and $\Seq{A}$ as a type of finite $A$-valued sequences, that is
+\begin{equation*}
+\Opt{A} = \{\bot\} \sqcup A, \qquad
+\Seq{A} = \{[\;]\} \sqcup A \sqcup A^2 \sqcup \ldots.
+\end{equation*}
+
+With these, we can express relationships~(\ref{itm:employee-to-manager})
+and~(\ref{itm:department-to-employee}) as primitives
+\begin{alignat*}{3}
+    & \Manager && : \Emp && \to \Opt{\Emp}, \\
+    & \Employee && : \Dept && \to \Seq{\Emp}.
+\end{alignat*}
+The container structure over the query output is what we call the query
+cardinality.
+
+We can now guess the output type and cardinality of
+query~(\ref{itm:department-set}).  Indeed, \emph{a list of all departments}
+can only mean $\Seq{\Dept}$.
+
+To describe the input this query, we need to introduce a \emph{singleton} type
+\begin{equation*}
+    \Void = \{\top\}.
+\end{equation*}
+Type $\Void$ has a unique inhabitant, and because there is no freedom in
+choosing a value of this type, it can designate input that can never affect the
+result of a query.  Thus, we can express~(\ref{itm:department-set}) with a
+\emph{class} primitive
+\begin{equation*}
+    \Department : \Void \to \Seq{\Dept}
+\end{equation*}
+that produces all department entities.
+
+Unfortunately, although containers let us represent optional and plural values,
+they do not compose well.  For example, it is tempting to express a query that
+\emph{for a given employee, finds their manager's salary} as a composition
+\begin{equation} \label{eq:manager-to-salary}
+    \Manager\To\Salary,
+\end{equation}
+or a query that \emph{shows the names of all departments} as
+\begin{equation} \label{eq:department-to-name}
+    \Department\To\Name.
+\end{equation}
+However, if we look at the signatures of the components
+\begin{alignat*}{6}
+    & \Manager && : \Emp && \to \Opt{\Emp}, \quad && \Salary && : \Emp && \to \Int, \\
+    & \Department && : \Void && \to \Seq{\Dept}, \quad && \Name && : \Dept && \to \Text,
+\end{alignat*}
+we see that their intermediate domains do not agree, which means their
+compositions are ill-formed.
+
+To compose functions that carry extra structure with their output, we use a
+concept of \emph{monadic composition} (\cite{Moggi1991}).
+
+A monad is a parametric type $M\{A\}$ equipped with a generic function
+$\operatorname{unit}_{M\{A\}} : A \to M\{A\}$ and a so-called monadic
+composition rule that satisfy certain coherence axioms.  Monadic
+composition of two functions
+\begin{equation*}
+    p : A \to M\{B\}, \qquad q : B \to M\{C\},
+\end{equation*}
+gives a function $p\,\To\,q$ with a signature of the same shape
+\begin{equation*}
+    p\,\To\,q : A \to M\{C\}.
+\end{equation*}
+
+Both $\Opt{A}$ and $\Seq{A}$ are monads.  Let us confirm that they admit
+monadic composition.
+
+Monadic composition of
+\begin{equation*}
+    p : A \to \Opt{B}, \qquad q : B \to \Opt{C}.
+\end{equation*}
+is just a composition of partial functions
+\begin{equation*}
+    p\,\To\,q : a \longmapsto \begin{cases}
+        \bot & (p(a)=\bot\text{ or }q(p(a))=\bot), \\
+        q(p(a)) & (\text{otherwise}).
+    \end{cases}
+\end{equation*}
+
+To compose two sequence-valued functions
+\begin{equation*}
+    p : A \to \Seq{B}, \qquad q : B \to \Seq{C},
+\end{equation*}
+we first evaluate $p$ on the input $a$ of type $A$
+\begin{equation*}
+    a \overset{p}{\longmapsto} [b_1, b_2, \ldots],
+\end{equation*}
+then apply $q$ to every element of $p(a)$
+\begin{equation*}
+    [b_1, b_2, \ldots]
+    \overset{[q]}{\longmapsto}
+    [[c^{1}_{1}, c^{1}_{2}, \ldots], [c^{2}_{1}, c^{2}_{2}, \ldots], \ldots],
+\end{equation*}
+and finally erase the nested brackets
+\begin{equation*}
+    [[c^{1}_{1}, c^{1}_{2}, \ldots], [c^{2}_{1}, c^{2}_{2}, \ldots], \ldots]
+    \overset{\cancel{\,[\;]\,}}{\longmapsto}
+    [c^{1}_{1}, c^{1}_{2}, \ldots, c^{2}_{1}, c^{2}_{2}, \ldots].
+\end{equation*}
+The result is the value $(p\,\To\,q)(a)$ of type $\Seq{C}$.
+
+Monadic (and regular) composition rules give us a way to compose queries of the
+same cardinality.  To compose queries with mixed cardinalities, we promote
+their cardinalities to a smallest common monadic container using a chain of
+natural embeddings
+\begin{equation*}
+    A \hookrightarrow \Opt{A} \hookrightarrow \Seq{A}.
+\end{equation*}
+These embeddings are defined by
+\begin{alignat*}{5}
+    & \; && \bot && : \Opt{A} && \longmapsto [\;] && : \Seq{A}, \\
+    & a : A \longmapsto\ && a && : \Opt{A} && \longmapsto [a] && : \Seq{A}.
+\end{alignat*}
+
+We can now state the query composition rule as follows: find the largest
+cardinality of the components; lift all components to this cardinality; use
+monadic composition.  For example, this rule gives queries
+(\ref{eq:manager-to-salary}) and (\ref{eq:department-to-name}) signatures
+\begin{alignat*}{3}
+    & \Manager\To\Salary && : \Emp && \to \Opt{\Text}, \\
+    & \Department\To\Name && : \Void && \to \Seq{\Int}.
+\end{alignat*}
+
+We are ready to present the design of a combinator-based query language.
+
+\begin{description}
+\item[Query interface:]
+A database query is a function of the form
+\begin{equation*}
+    p : A \to M\{B\}.
+\end{equation*}
+We call $A$ its input type, $B$ its output type, and $M$ its monadic
+cardinality.  $M\{B\}$ could be one of $B$, $\Opt{B}$ or $\Seq{B}$ and
+the respective queries are called singular, optional or plural.
+
+\item[Primitives:]
+The set of primitives include class primitives
+\begin{alignat*}{3}
+    & \Department && : \Void && \to \Seq{\Dept}, \\
+    & \Employee && : \Void && \to \Seq{\Dept},
+\end{alignat*}
+attributes
+\begin{alignat*}{6}
+    & \Name && : \Dept && \to \Text, \qquad
+    && \Name && : \Emp && \to \Text, \\
+    & \Position && : \Emp && \to \Text, \qquad
+    && \Salary && : \Emp && \to \Int,
+\end{alignat*}
+and relationships
+\begin{alignat*}{3}
+    & \Department && : \Emp && \to \Dept, \\
+    & \Employee && : \Dept && \to \Seq{\Emp}, \\
+    & \Manager && : \Emp && \to \Opt{\Emp}, \\
+    & \Subordinate && : \Emp && \to \Seq{\Emp}.
+\end{alignat*}
+Note that we allow multiple primitives to share the same name as long as they
+do not share the same input.
+
+\item[Combinators:]
+Binary composition combinator takes two queries
+\begin{equation*}
+    p : A \to M_1\{B\}, \qquad
+    q : B \to M_2\{C\}
+\end{equation*}
+and produces a query of the form
+\begin{equation*}
+    p\,\To\,q : A \to M\{C\}.
+\end{equation*}
+Here, $M = M_1 \lor M_2$ is the smallest common cardinality of $M_1$ and $M_2$.
+
+More combinators will be described in the next section.
+\end{description}
+
+To visualize the full set of primitives, we could alter
+Figure~\ref{fig:sample-schema} to add the $\Void$ node and missing arcs.  But
+instead, we prefer to unfold it into an infinite tree, where each node stands
+for a primitive and any two adjacent nodes are composable primitives (see
+Figure~\ref{fig:hierarchical-form}).  We can say that
+Figure~\ref{fig:hierarchical-form} represents the database in hierarchical
+database model, which suggests us another model of a database query: a
+transformation of a hierarchical database.
+

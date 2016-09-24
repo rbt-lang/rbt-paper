@@ -15,8 +15,10 @@ The combinator pattern gives us a roadmap to design a database query language:
 \begin{enumerate}
 \item
 Define the interface of a database query.
+
 \item
 Describe the set of primitive queries.
+
 \item
 Describe combinators for making composite queries.
 \end{enumerate}
@@ -24,11 +26,10 @@ Describe combinators for making composite queries.
 To elaborate on this idea and to demonstrate example queries, we need some
 sample structured data.  Throughout this paper, we use a simple database that
 contains just two classes of entities: \emph{departments} and \emph{employees}.
-Each department entity has one attribute: \emph{name}.
-Each employee entity has three attributes: \emph{name}, \emph{position} and
-\emph{salary}.
-Each employee belongs to a department.
-An employee may have a \emph{manager}, who is also an employee.
+Each department entity has one attribute: \emph{name}.  Each employee entity
+has three attributes: \emph{name}, \emph{position} and \emph{salary}.  Each
+employee belongs to a department.  An employee may have a \emph{manager}, who
+is also an employee.
 
 The structure of this database can be visualized as a directed graph, where entity
 classes and attribute types become graph nodes, while attributes and relationships
@@ -79,15 +80,15 @@ write our first composite query.
 \begin{example}
     Given an employee entity, show the name of their department.
     \begin{equation*}
-        \Department{.}\Name: \Emp \to \Text
+        \Department\To\Name: \Emp \to \Text
     \end{equation*}
 \end{example}
 
-In this example, $\Department{.}\Name$ is a query written in Rabbit notation,
-$\Emp \to \Text$ is its signature.  The period $({.})$ denotes the composition
+In this example, $\Department\To\Name$ is a query written in Rabbit notation,
+$\Emp \to \Text$ is its signature.  The period $(\To)$ denotes the composition
 combinator, which is a polymorphic binary operator with signature
 \begin{equation*}
-        (-{.}-) : (A \to B) \times (B \to C) \to (A \to C).
+        -\,\To\,- : (A \to B) \times (B \to C) \to (A \to C).
 \end{equation*}
 
 Even though we got a query interface, a set of primitives and one query
@@ -104,17 +105,17 @@ employees as a primitive with input $\Emp$ and output $\Dept$.  But this
 relationship is symmetric and we may just as well be interested in finding,
 \emph{for any given department, the corresponding set of employees}.  This
 query cannot be encoded as a function because its signature $\Dept \to \Emp$
-would incorrectly imply that there is exactly one employee per department.  The
-query interface is unable to express multivalued or \emph{plural}
+would incorrectly imply that there is exactly one employee per department.
+Thus, the query interface is unable to express multivalued or \emph{plural}
 relationships.
 
 The interface also fails to capture the semantics of \emph{optional} attributes
 and relationships.  Such is the relationship between employees and their
-managers, which, according to Figure~\ref{fig:sample-schema}, is encoded by
-a primitive with signature $\Emp \to \Emp$.
-But this signature implies that every employee must have a manager, which is
-untrue.  Apparently, pure functional interface is too restrictive to express
-the variety of relationships between database entities.
+managers, which, according to Figure~\ref{fig:sample-schema}, is encoded by a
+primitive with signature $\Emp \to \Emp$.  But this signature implies that
+every employee must have a manager, which is untrue.  Apparently, pure
+functional interface is too restrictive to express the variety of relationships
+between database entities.
 
 To improve this sketch of a query language, we will extend the query interface
 to support optional and plural values, add primitives to express entity classes
@@ -124,7 +125,7 @@ comprehensive library of query combinators.
 This paper is organized as follows.
 
 In Section~\ref{sec:cardinality}, we introduce query cardinality as a mo\-nadic
-wrapper over its output type, which will allow us to complete our set of
+structure over its output type, which will allow us to complete our set of
 primitive queries.  We also show how any database can be unfolded to the
 hierarchical form.
 
@@ -137,12 +138,11 @@ relationships.
 In Section~5, we define quotient types and show how to use them for grouping
 and cube operations.
 
-In Section~6, we show how to extend the query interface with comonadic wrapper
-over its input type to support context-aware combinators.  This gives us
-ability to express queries with running aggregates and parametric queries.
+In Section~6, we show how to extend the query interface with comonadic
+structure over its input type to support context-aware combinators.  This gives
+us ability to express queries with running aggregates and queries with
+parameters.
 
-In Section~7, we formally describe the query interface and the composition
-combinator.
-
-In Section~8, we briefly discuss some related work.
+In Section~7, we summarize the query model and briefly discuss some related
+work.
 

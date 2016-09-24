@@ -1,9 +1,12 @@
 \documentclass{sig-alternate-10}
+\usepackage{enumerate}
+\usepackage{cancel}
 \usepackage{tikz}
-\usetikzlibrary{arrows,positioning}
-\def\sharedaffiliation{\end{tabular}\newline\begin{tabular}{c}}
+\usetikzlibrary{arrows,arrows.meta,positioning}
+\usepackage{forest}
 \newtheorem{example}{Example}[section]
 \newcommand{\keyword}[1]{\textup{\textsf{#1}}}
+\newcommand{\Void}{\keyword{Void}}
 \newcommand{\Dept}{\keyword{Dept}}
 \newcommand{\Emp}{\keyword{Emp}}
 \newcommand{\Text}{\keyword{Text}}
@@ -15,6 +18,11 @@
 \newcommand{\Salary}{\keyword{salary}}
 \newcommand{\Manager}{\keyword{manager}}
 \newcommand{\Subordinate}{\keyword{subordinate}}
+\newcommand{\Opt}[1]{\keyword{Opt}\{#1\}}
+\newcommand{\Seq}[1]{\keyword{Seq}\{#1\}}
+\newcommand{\Null}{\keyword{null}}
+\newcommand{\To}{\boldsymbol{.}}
+\def\sharedaffiliation{\end{tabular}\newline\begin{tabular}{c}}
 
 \begin{document}
 
@@ -32,6 +40,7 @@
 
 \input{abstract}
 \input{introduction}
+\input{cardinality}
 
 \bibliographystyle{abbrv}
 \bibliography{rbt-paper}
