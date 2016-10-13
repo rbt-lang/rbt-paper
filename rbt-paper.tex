@@ -4,6 +4,7 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows,arrows.meta,positioning}
 \usepackage{forest}
+\usepackage{framed}
 \newtheorem{example}{Example}[section]
 \newcommand{\keyword}[1]{\textup{\textsf{#1}}}
 \newcommand{\Void}{\keyword{Void}}
@@ -11,6 +12,7 @@
 \newcommand{\Emp}{\keyword{Emp}}
 \newcommand{\Text}{\keyword{Text}}
 \newcommand{\Int}{\keyword{Int}}
+\newcommand{\Bool}{\keyword{Bool}}
 \newcommand{\Department}{\keyword{department}}
 \newcommand{\Employee}{\keyword{employee}}
 \newcommand{\Name}{\keyword{name}}
@@ -20,8 +22,42 @@
 \newcommand{\Subordinate}{\keyword{subordinate}}
 \newcommand{\Opt}[1]{\keyword{Opt}\{#1\}}
 \newcommand{\Seq}[1]{\keyword{Seq}\{#1\}}
+\newcommand{\Rel}[1]{\keyword{Rel}\{#1\}}
+\newcommand{\Ctx}[2]{\keyword{Ctx}_{#1}\{#2\}}
+\newcommand{\Tuple}[1]{\langle #1 \rangle}
 \newcommand{\Null}{\keyword{null}}
+\newcommand{\True}{\keyword{true}}
+\newcommand{\False}{\keyword{false}}
+\newcommand{\Here}{\keyword{here}}
+\newcommand{\Length}{\keyword{length}}
 \newcommand{\To}{\boldsymbol{.}}
+\newcommand{\Apply}{\!\boldsymbol{:}\!}
+\newcommand{\As}{\Rightarrow}
+\newcommand{\Count}{\keyword{count}}
+\newcommand{\Exists}{\keyword{exists}}
+\newcommand{\Any}{\keyword{any}}
+\newcommand{\All}{\keyword{all}}
+\newcommand{\Sum}{\keyword{sum}}
+\newcommand{\Max}{\keyword{max}}
+\newcommand{\Min}{\keyword{min}}
+\newcommand{\Mean}{\keyword{mean}}
+\newcommand{\Select}{\keyword{select}}
+\newcommand{\Filter}{\keyword{filter}}
+\newcommand{\Define}{\keyword{define}}
+\newcommand{\Size}{\keyword{size}}
+\newcommand{\TopSalary}{\keyword{top\_salary}}
+\newcommand{\Sort}{\keyword{sort}}
+\newcommand{\Asc}{\keyword{asc}}
+\newcommand{\Desc}{\keyword{desc}}
+\newcommand{\Take}{\keyword{take}}
+\newcommand{\Skip}{\keyword{skip}}
+\newcommand{\Unique}{\keyword{unique}}
+\newcommand{\Connect}{\keyword{connect}}
+\newcommand{\Group}{\keyword{group}}
+\newcommand{\Cube}{\keyword{cube}}
+\newcommand{\Before}{\keyword{before}}
+\newcommand{\Around}{\keyword{around}}
+\newcommand{\Given}{\keyword{given}}
 \def\sharedaffiliation{\end{tabular}\newline\begin{tabular}{c}}
 
 \begin{document}
@@ -41,6 +77,10 @@
 \input{abstract}
 \input{introduction}
 \input{cardinality}
+\input{combinators}
+\input{quotients}
+\input{context}
+\input{conclusion}
 
 \bibliographystyle{abbrv}
 \bibliography{rbt-paper}

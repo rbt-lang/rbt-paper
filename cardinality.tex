@@ -2,72 +2,9 @@
 \section{Query Cardinality}
 \label{sec:cardinality}
 
-\begin{figure*}
-    \label{fig:hierarchical-form}
-    \centering
-    \begin{forest}
-        void/.style = {
-            draw, circle},
-        map/.style = {
-            draw, rectangle, rounded corners=2mm,
-            minimum width=1.5cm, minimum height=.5cm,
-            text height=1.5ex, text depth=.25ex,
-            font=\small\sffamily},
-        blank/.style = {
-            no edge},
-        more/.style = {
-            rectangle, minimum height=.5cm,
-            edge={-{stealth'}}},
-        singular/.style = {
-            edge={-}},
-        optional/.style = {
-            edge={-{Circle[open,length=3.5pt]}}},
-        plural/.style = {
-            edge={-{Straight Barb[reversed,length=3.5pt]}, shorten >=-0.3pt}},
-        for tree = {
-            parent anchor=south,
-            child anchor=north,
-            edge path={
-                \noexpand\path[\forestoption{edge}](!u.parent anchor) -- +(0,-4pt) -| (.child anchor)\forestoption{edge label};}}
-        [{},void
-            [department,map,plural
-                [name,map,singular]
-                [employee,map,plural
-                    [name,map,singular]
-                    [\dots,blank]
-                    [department,map,singular
-                        [\dots,more]
-                        [\dots,more]]
-                    [\dots,blank]
-                    [subordinate,map,plural
-                        [\dots,more]
-                        [\dots,blank]
-                        [\dots,more]]]]
-            [employee,map,plural
-                [name,map,singular]
-                [position,map,singular]
-                [salary,map,singular]
-                [department,map,singular
-                    [name,map,singular]
-                    [employee,map,plural
-                        [\dots,more]
-                        [\dots,blank]
-                        [\dots,more]]]
-                [manager,map,optional
-                    [\dots,more]
-                    [\dots,blank]
-                    [\dots,more]]
-                [subordinate,map,plural
-                    [\dots,more]
-                    [\dots,blank]
-                    [\dots,more]]]]
-    \end{forest}
-    \caption{Database schema in hierarchical form}
-\end{figure*}
-
 In Section~\ref{sec:introduction}, we suggested that any function defined on an
-entity set can be seen as a query.  However, this query model failed to
-represent optional and plural relationships as well as queries without apparent
+entity set can be seen as a query.  However, this naive model failed to
+represent optional and plural relationships as well as queries lacking apparent
 input.  In this section, we resolve these issues by introducing the notion of
 \emph{query cardinality}.
 
@@ -89,22 +26,13 @@ We were also puzzled on how to express input-free queries such as:
 \emph{Show a list of all departments.}
 \end{enumerate}
 
-Let us start with relationships~(\ref{itm:employee-to-manager})
-and~(\ref{itm:department-to-employee}).  Expressing them as queries with
-signatures
-\begin{equation*}
-    \Emp \to \Emp, \qquad \Dept \to \Emp
-\end{equation*}
-would imply exactly one output value for any input.  But an employee may have
-no manager, and a department may have more than one employee.
-
 In programming practice, optional and plural values are stored using container
 types.  So let us define two parametric types: $\Opt{A}$ as a zero or one value
 of type $A$ and $\Seq{A}$ as a type of finite $A$-valued sequences, that is
-\begin{equation*}
-\Opt{A} = \{\bot\} \sqcup A, \qquad
-\Seq{A} = \{[\;]\} \sqcup A \sqcup A^2 \sqcup \ldots.
-\end{equation*}
+\begin{alignat*}{2}
+    & \Opt{A} && = \{\, \bot \,\} + A, \\
+    & \Seq{A} && = \{[a_1,\ldots,a_n] \mid a_1,\ldots,a_n:A,\; n=0,1,\ldots \}.
+\end{alignat*}
 
 With these, we can express relationships~(\ref{itm:employee-to-manager})
 and~(\ref{itm:department-to-employee}) as primitives
@@ -119,9 +47,10 @@ We can now guess the output type and cardinality of
 query~(\ref{itm:department-set}).  Indeed, \emph{a list of all departments}
 can only mean $\Seq{\Dept}$.
 
-To describe the input this query, we need to introduce a \emph{singleton} type
+To describe the input of query~(\ref{itm:department-set}), we use a
+\emph{singleton} type
 \begin{equation*}
-    \Void = \{\top\}.
+    \Void = \{\, \top \,\}.
 \end{equation*}
 Type $\Void$ has a unique inhabitant, and because there is no freedom in
 choosing a value of this type, it can designate input that can never affect the
@@ -150,13 +79,11 @@ However, if we look at the signatures of the components
 we see that their intermediate domains do not agree, which means their
 compositions are ill-formed.
 
-To compose functions that carry extra structure with their output, we use a
-concept of \emph{monadic composition} (\cite{Moggi1991}).
-
-A monad is a parametric type $M\{A\}$ equipped with a generic function
-$\operatorname{unit}_{M\{A\}} : A \to M\{A\}$ and a so-called monadic
-composition rule that satisfy certain coherence axioms.  Monadic
-composition of two functions
+To compose functions that carry extra structure with their output, we use
+\emph{monadic composition} (\cite{Moggi1991}).  A mo\-nad is a parametric type
+$M\{A\}$ equipped with a generic function $\keyword{pure}_A : A \to M\{A\}$ and
+a monadic composition operator, which must satisfy certain coherence axioms.
+Monadic composition of two functions
 \begin{equation*}
     p : A \to M\{B\}, \qquad q : B \to M\{C\},
 \end{equation*}
@@ -165,12 +92,12 @@ gives a function $p\,\To\,q$ with a signature of the same shape
     p\,\To\,q : A \to M\{C\}.
 \end{equation*}
 
-Both $\Opt{A}$ and $\Seq{A}$ are monads.  Let us confirm that they admit
-monadic composition.
+Both $\Opt{A}$ and $\Seq{A}$ are known to be monads.  Let us confirm that they
+admit monadic composition.
 
 Monadic composition of
 \begin{equation*}
-    p : A \to \Opt{B}, \qquad q : B \to \Opt{C}.
+    p : A \to \Opt{B}, \qquad q : B \to \Opt{C}
 \end{equation*}
 is just a composition of partial functions
 \begin{equation*}
@@ -194,7 +121,7 @@ then apply $q$ to every element of $p(a)$
     \overset{[q]}{\longmapsto}
     [[c^{1}_{1}, c^{1}_{2}, \ldots], [c^{2}_{1}, c^{2}_{2}, \ldots], \ldots],
 \end{equation*}
-and finally erase the nested brackets
+and finally flatten the nested sequences
 \begin{equation*}
     [[c^{1}_{1}, c^{1}_{2}, \ldots], [c^{2}_{1}, c^{2}_{2}, \ldots], \ldots]
     \overset{\cancel{\,[\;]\,}}{\longmapsto}
@@ -204,8 +131,8 @@ The result is the value $(p\,\To\,q)(a)$ of type $\Seq{C}$.
 
 Monadic (and regular) composition rules give us a way to compose queries of the
 same cardinality.  To compose queries with mixed cardinalities, we promote
-their cardinalities to a smallest common monadic container using a chain of
-natural embeddings
+their output to a smallest common monadic container using a chain of natural
+embeddings
 \begin{equation*}
     A \hookrightarrow \Opt{A} \hookrightarrow \Seq{A}.
 \end{equation*}
@@ -216,18 +143,19 @@ These embeddings are defined by
 \end{alignat*}
 
 We can now state the query composition rule as follows: find the largest
-cardinality of the components; lift all components to this cardinality; use
-monadic composition.  For example, this rule gives queries
+cardinality of the components; lift the output of all components to this
+cardinality; use monadic composition.  For example, this rule gives queries
 (\ref{eq:manager-to-salary}) and (\ref{eq:department-to-name}) signatures
 \begin{alignat*}{3}
-    & \Manager\To\Salary && : \Emp && \to \Opt{\Text}, \\
-    & \Department\To\Name && : \Void && \to \Seq{\Int}.
+    & \Manager\To\Salary && : \Emp && \to \Opt{\Int}, \\
+    & \Department\To\Name && : \Void && \to \Seq{\Text}.
 \end{alignat*}
 
-We are ready to present the design of a combinator-based query language.
+We are finally ready to present the design of a combina\-tor-based query
+language.
 
 \begin{description}
-\item[Query interface:]
+\item[Query model:]
 A database query is a function of the form
 \begin{equation*}
     p : A \to M\{B\}.
@@ -237,7 +165,7 @@ cardinality.  $M\{B\}$ could be one of $B$, $\Opt{B}$ or $\Seq{B}$ and
 the respective queries are called singular, optional or plural.
 
 \item[Primitives:]
-The set of primitives include class primitives
+The set of primitives includes class primitives
 \begin{alignat*}{3}
     & \Department && : \Void && \to \Seq{\Dept}, \\
     & \Employee && : \Void && \to \Seq{\Dept},
@@ -257,7 +185,7 @@ and relationships
     & \Subordinate && : \Emp && \to \Seq{\Emp}.
 \end{alignat*}
 Note that we allow multiple primitives to share the same name as long as they
-do not share the same input.
+are not defined with the same input type.
 
 \item[Combinators:]
 Binary composition combinator takes two queries
@@ -269,17 +197,119 @@ and produces a query of the form
 \begin{equation*}
     p\,\To\,q : A \to M\{C\}.
 \end{equation*}
-Here, $M = M_1 \lor M_2$ is the smallest common cardinality of $M_1$ and $M_2$.
+Here, $M = M_1 \sqcup M_2$ is the smallest common cardinality of $M_1$ and
+$M_2$.
 
-More combinators will be described in the next section.
+More combinators will be described in the next sections.
 \end{description}
 
-To visualize the full set of primitives, we could alter
-Figure~\ref{fig:sample-schema} to add the $\Void$ node and missing arcs.  But
-instead, we prefer to unfold it into an infinite tree, where each node stands
-for a primitive and any two adjacent nodes are composable primitives (see
-Figure~\ref{fig:hierarchical-form}).  We can say that
-Figure~\ref{fig:hierarchical-form} represents the database in hierarchical
-database model, which suggests us another model of a database query: a
-transformation of a hierarchical database.
+This design suggests a new way to visually represent the structure of the
+database.  Recall that we started with the schema graph in
+Figure~\ref{fig:sample-schema}, which gave us the original, incomplete set of
+primitives.  To reflect the primitives that were defined afterwards, we should
+add the $\Void$ node and the missing arcs (see Figure~\ref{fig:folded-form}).
+In this updated graph, any path corresponds to a composable chain of
+primitives.
+
+Furthermore, we can transform the schema graph into an (infinite) tree by
+unfolding it starting from the $\Void$ node (see
+Figure~\ref{fig:unfolded-form}).  In this form, each node corresponds to some
+composition of primitives.  Figure~\ref{fig:unfolded-form} presents the
+structure of the database in the hierarchical database model.
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}
+        [
+            > = stealth',
+            shorten > = 1pt,
+            node distance = 1.8cm and 0.5cm,
+            set/.style = {
+                draw, rectangle, thick, font=\sffamily,
+                minimum width=1.5cm, minimum height=.75cm,
+                text height=1.5ex, text depth=.25ex},
+            map/.style = {font=\small\sffamily}
+        ]
+        \node [set] (Void) {Void};
+        \node [set] (Dept) [below left=of Void] {Dept};
+        \node [set] (Emp) [below right=of Void] {Emp};
+        \node [set] (Text) [below=of Dept] {Text};
+        \node [set] (Int) [below=of Emp] {Int};
+        \draw [->] (Void) to [bend right=10] node [map, right] {department} (Dept);
+        \draw [->] (Void) to [bend left=10] node [map, right] {employee} (Emp);
+        \draw [->] (Dept) to [bend right=10] node [map, right] {name} (Text);
+        \draw [->] (Dept) to [bend right=5] node [map, below] {employee} (Emp);
+        \draw [->] (Emp) to [bend right=12] node [map, right] {\;name} (Text);
+        \draw [->] (Emp) to [bend left=12] node [map, right] {\;position} (Text);
+        \draw [->] (Emp) to [bend left=10] node [map, right] {salary} (Int);
+        \draw [->] (Emp) to [bend right=5] node [map, above] {department} (Dept);
+        \draw [->] (Emp) to [loop right,out=60,in=10,looseness=7] node [map, right] {manager} (Emp);
+        \draw [->] (Emp) to [loop right,out=300,in=350,looseness=7] node [map, right] {subordinate} (Emp);
+    \end{tikzpicture}
+    \caption{Database schema in folded form}
+    \label{fig:folded-form}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \begin{forest}
+        void/.style = {
+            draw, circle,
+        },
+        map/.style = {
+            draw, rectangle, rounded corners=1mm,
+            minimum width=2cm, minimum height=.5cm,
+            text height=1.5ex, text depth=.25ex,
+            font=\small\sffamily},
+        more/.style = {
+            rectangle, minimum height=.5cm,
+            edge={-, dashed},
+            edge path={
+                \noexpand\path [\forestoption{edge}]
+                (!u.parent anchor) -- +(0.3cm,0);},
+            l sep=0
+        },
+        singular/.style = {
+            edge={-}},
+        optional/.style = {
+            edge={-{Circle[open,length=3.5pt]}}},
+        plural/.style = {
+            edge={-{Straight Barb[reversed,length=3.5pt]}, shorten >=-0.3pt}},
+        for tree = {
+            grow'=0,
+            child anchor=west,
+            parent anchor=east,
+            anchor=west,
+            calign=first,
+            edge path={\noexpand\path [\forestoption{edge}] (!u.parent anchor) -- +(0.1cm,0) |- (.child anchor);},
+            fit=band}
+        [{},void
+            [department,map,plural
+                [name,map,singular]
+                [employee,map,plural
+                    [name,map,singular]
+                    [position,map,singular]
+                    [department,map,singular
+                        [,more,l sep=0]]
+                    [manager,map,optional
+                        [,more]]
+                    [subordinate,map,plural
+                        [,more]]]]
+            [employee,map,plural
+                [name,map,singular]
+                [position,map,singular]
+                [salary,map,singular]
+                [department,map,singular
+                    [name,map,singular]
+                    [employee,map,plural
+                        [,more]]]
+                [manager,map,optional
+                    [,more]]
+                [subordinate,map,plural
+                    [,more]]]]
+    \end{forest}
+    \caption{Database schema in unfolded form}
+    \label{fig:unfolded-form}
+\end{figure}
+
 

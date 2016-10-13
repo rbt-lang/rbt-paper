@@ -2,19 +2,17 @@
 \section{Introduction}
 \label{sec:introduction}
 
-\emph{Combinator pattern} is a well-known technique for designing declarative
-domain-specific languages (DSLs). This technique views a DSL as an algebra of
-self-con\-tained processing blocks, which either come from a set of predefined
-atomic \emph{primitives} or are constructed from other blocks using block
-operators (combinators).  Using the combinator pattern, a DSL is specified by:
-the interface of its processing blocks, a set of primitives, and a collection
-of combinators.
+The \emph{combinator pattern} is a well-known technique for designing
+declarative domain-specific languages (DSLs). This technique views a DSL as an
+algebra of self-con\-tained processing blocks, which either come from a set of
+predefined atomic \emph{primitives} or are constructed from other blocks using
+block \emph{combinators}.
 
 The combinator pattern gives us a roadmap to design a database query language:
 
 \begin{enumerate}
 \item
-Define the interface of a database query.
+Define the model of a database query.
 
 \item
 Describe the set of primitive queries.
@@ -23,20 +21,19 @@ Describe the set of primitive queries.
 Describe combinators for making composite queries.
 \end{enumerate}
 
-To elaborate on this idea and to demonstrate example queries, we need some
-sample structured data.  Throughout this paper, we use a simple database that
-contains just two classes of entities: \emph{departments} and \emph{employees}.
-Each department entity has one attribute: \emph{name}.  Each employee entity
-has three attributes: \emph{name}, \emph{position} and \emph{salary}.  Each
-employee belongs to a department.  An employee may have a \emph{manager}, who
-is also an employee.
+To elaborate on this idea, we need some sample structured data.  Throughout
+this paper, we use a simple database that contains just two classes of
+entities: \emph{departments} and \emph{employees}.  Each department entity has
+one attribute: \emph{name}.  Each employee entity has three attributes:
+\emph{name}, \emph{position} and \emph{salary}.  Each employee belongs to a
+department.  An employee may have a \emph{manager}, who is also an employee.
 
-The structure of this database can be visualized as a directed graph, where entity
-classes and attribute types become graph nodes, while attributes and relationships
-become arcs (see Figure~\ref{fig:sample-schema}).  This diagram
-suggests presentation of the database in terms of types and functions.
-Namely, graph arcs represent functions that store data about attributes and
-relationships, such as
+The structure of this database can be visualized as a directed graph, where
+entity classes and attribute types become graph nodes, while attributes and
+relationships become arcs (see Figure~\ref{fig:sample-schema}).  This diagram
+suggests us to view a database as a collection of types and functions.  Namely,
+an arc connecting two nodes represents a function with the given types of input
+and output, for example
 \begin{alignat*}{3}
     & \Department && : \Emp && \to \Dept, \\
     & \Name && : \Dept && \to \Text.
@@ -44,7 +41,6 @@ relationships, such as
 This is known as the functional database model (\cite{Kerschberg1976}).
 
 \begin{figure}
-    \label{fig:sample-schema}
     \centering
     \begin{tikzpicture}
         [
@@ -68,7 +64,8 @@ This is known as the functional database model (\cite{Kerschberg1976}).
         \draw [->] (Emp) to node [map, above] {department} (Dept);
         \draw [->] (Emp) to [loop right] node [map, right] {manager} (Emp);
     \end{tikzpicture}
-    \caption{Sample database schema}
+    \caption{Sample database}
+    \label{fig:sample-schema}
 \end{figure}
 
 This model provides us with a starting point on our combinator pattern roadmap.
@@ -91,58 +88,49 @@ combinator, which is a polymorphic binary operator with signature
         -\,\To\,- : (A \to B) \times (B \to C) \to (A \to C).
 \end{equation*}
 
-Even though we got a query interface, a set of primitives and one query
+Even though we specified a query model, a set of primitives and one query
 combinator, it doesn't yet feel like a proper query language.  Let us discuss
 what is missing.
 
-First, it is awkward that the query interface always demands an input.  It
-means that we cannot express an input-free query like \emph{show a list of all
-departments}.
+First, it is awkward that a query always demands an input.  It means that we
+cannot express an input-free query like \emph{show a list of all departments}.
 
-Further, relationships between entities got a direction arbitrarily assigned to
-them.  Indeed, we chose to encode the relationship between departments and
-employees as a primitive with input $\Emp$ and output $\Dept$.  But this
-relationship is symmetric and we may just as well be interested in finding,
-\emph{for any given department, the corresponding set of employees}.  This
-query cannot be encoded as a function because its signature $\Dept \to \Emp$
-would incorrectly imply that there is exactly one employee per department.
-Thus, the query interface is unable to express multivalued or \emph{plural}
-relationships.
+Further, relationships between entities were arbitrarily assigned a direction.
+Indeed, we chose to encode the relationship between departments and employees
+as a primitive with input $\Emp$ and output $\Dept$.  But this relationship is
+symmetric and we may just as well be interested in finding, \emph{for any given
+department, the corresponding set of employees}.  This query cannot be encoded
+as a function because its signature $\Dept \to \Emp$ would incorrectly imply
+that there is exactly one employee per department.  Thus, the query model
+is unable to express multivalued or \emph{plural} relationships.
 
-The interface also fails to capture the semantics of \emph{optional} attributes
-and relationships.  Such is the relationship between employees and their
-managers, which, according to Figure~\ref{fig:sample-schema}, is encoded by a
+The model also fails to capture the semantics of \emph{optional} attributes and
+relationships.  Such is the relationship between employees and their managers,
+which, according to Figure~\ref{fig:sample-schema}, should be encoded by a
 primitive with signature $\Emp \to \Emp$.  But this signature implies that
 every employee must have a manager, which is untrue.  Apparently, pure
-functional interface is too restrictive to express the variety of relationships
+functional model is too restrictive to express the variety of relationships
 between database entities.
 
-To improve this sketch of a query language, we will extend the query interface
-to support optional and plural values, add primitives to express entity classes
-and inverse relationships and implement common data operations in a
-comprehensive library of query combinators.
-
-This paper is organized as follows.
+This paper shows how to complete this sketch of a query language.  It is
+organized as follows.
 
 In Section~\ref{sec:cardinality}, we introduce query cardinality as a mo\-nadic
-structure over its output type, which will allow us to complete our set of
-primitive queries.  We also show how any database can be unfolded to the
-hierarchical form.
+structure over its output type, which will allow us to extend our set of
+primitive queries.
 
-In Section~3, we define and demonstrate how to use combinators for data
-traversal, aggregation, filtering, sorting and pagination.
-
-In Section~4, we introduce combinators for exploring hierarchical
+In Section~\ref{sec:combinators}, we define combinators for data traversal,
+aggregation, filtering, sorting, pagination and exploring hierarchical
 relationships.
 
-In Section~5, we define quotient types and show how to use them for grouping
-and cube operations.
+In Section~\ref{sec:quotients}, we define quotient types and show how to use
+them for grouping and cube operations.
 
-In Section~6, we show how to extend the query interface with comonadic
-structure over its input type to support context-aware combinators.  This gives
-us ability to express queries with running aggregates and queries with
-parameters.
+In Section~\ref{sec:context}, we show how to extend the query model with a
+comonadic structure over its input type to support context-aware combinators.
+This gives us ability to express queries with running aggregates and queries
+with parameters.
 
-In Section~7, we summarize the query model and briefly discuss some related
-work.
+In Section~\ref{sec:conclusion}, we summarize the query model and briefly
+discuss some related work.
 

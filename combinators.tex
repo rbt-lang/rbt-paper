@@ -1,0 +1,708 @@
+
+\section{Query Combinators}
+\label{sec:combinators}
+
+In this section, we show how the query model defined in
+Section~\ref{sec:cardinality} can support a wide range of operations on data.
+
+\subsection*{Extracting Data}
+
+By traversing the tree of Figure~\ref{fig:unfolded-form}, we can extract data
+from the database.
+
+\begin{example}
+    \label{ex:department-name}
+    Show the name of each department.
+    \begin{equation*}
+        \Department\To\Name
+    \end{equation*}
+\end{example}
+
+This example is constructed by descending through nodes $\Department$ and
+$\Name$, which represent primitives
+\begin{alignat*}{3}
+    & \Department && : \Void && \to \Seq{\Dept}, \\
+    & \Name && : \Dept && \to \Text.
+\end{alignat*}
+The composition of the primitives inherits the input of the first component and
+the output of the second component.  Since one of the components is plural, the
+composition is also plural, which gives it a signature
+\begin{equation*}
+    \Department\To\Name : \Void \to \Seq{\Text}.
+\end{equation*}
+
+\begin{example}
+    \label{ex:department-employee-name}
+    For each department, show the name of each employee.
+    \begin{equation*}
+        \Department\To\Employee\To\Name
+    \end{equation*}
+\end{example}
+
+This example takes a path through
+\begin{alignat*}{3}
+    & \Department && : \Void && \to \Seq{\Dept}, \\
+    & \Employee && : \Dept && \to \Seq{\Emp}, \\
+    & \Name && : \Emp && \to \Text,
+\end{alignat*}
+to construct a query
+\begin{equation*}
+    \Department\To\Employee\To\Name : \Void \to \Seq{\Text}.
+\end{equation*}
+
+This query produces a list of employee names.  Since each employee belongs to
+exactly one department, the list should contain the name of every employee.
+The order in which the names appear in the output depends on the intrinsic
+order of the $\Department$ and $\Employee$ primitives, but, in any case,
+employees within the same department will be coupled together.
+
+The same collection of names, although not necessarily in the same order, is
+produced by the following example.
+
+\begin{example}
+    \label{ex:employee-name}
+    Show the name of each employee.
+    \begin{equation*}
+        \Employee\To\Name
+    \end{equation*}
+\end{example}
+
+On the other hand, the next example is very different from an apparently
+similar Example~\ref{ex:department-name}.
+
+\begin{example}
+    \label{ex:employee-department-name}
+    For each employee, show the name of their department.
+    \begin{equation*}
+        \Employee\To\Department\To\Name
+    \end{equation*}
+\end{example}
+
+Here, we should see a list of department names, but each name will appear as
+many times as there are employees in the corresponding department.
+
+\begin{example}
+    \label{ex:employee-position}
+    Show the position of each employee.
+    \begin{equation*}
+        \Employee\To\Position
+    \end{equation*}
+\end{example}
+
+Similarly, $\Employee\To\Position$ will output duplicate position titles.  We
+will see how to produce a list of \emph{unique} positions in
+Section~\ref{sec:quotients}.
+
+\begin{example}
+    \label{ex:employee}
+    Show all employees.
+    \begin{equation*}
+        \Employee
+    \end{equation*}
+\end{example}
+
+In this example, the query should emit a sequence of entity objects.  In our
+Rabbit implementation, entity values are not observable directly, so this
+example would instead display a list of records with employee attributes.
+
+\subsection*{Summarizing Data}
+
+Let us see how the extracted data can be summarized.
+
+\begin{example}
+    \label{ex:count-department}
+    Show the number of all departments.
+    \begin{equation*}
+        \Count(\Department)
+    \end{equation*}
+\end{example}
+
+This query produces a single number, so that its signature is
+\begin{equation*}
+    \Count(\Department) : \Void \to \Int.
+\end{equation*}
+It is constructed by applying the $\Count$ combinator to a query that generates
+\emph{a list of all departments}
+\begin{equation*}
+    \Department : \Void \to \Seq{\Dept}.
+\end{equation*}
+Comparing the signatures of these two queries, we can derive the signature of
+the $\Count$ combinator, in this specific case,
+\begin{equation*}
+    (\Void \to \Seq{\Dept}) \to (\Void \to \Int),
+\end{equation*}
+and, in general,
+\begin{equation*}
+    \Count: (A \to \Seq{B}) \to (A \to \Int).
+\end{equation*}
+In other words, the $\Count$ combinator transforms any sequence-valued query
+to an integer-valued query.  It is implemented by lifting the function that
+returns the length of a sequence
+\begin{equation*}
+    |-| : \Seq{A} \to \Int
+\end{equation*}
+to a query combinator
+\begin{equation*}
+    \Count(q) = a \mapsto |q(a)|.
+\end{equation*}
+
+We call $\Count$ and other unary combinators that transform a plural query to a
+singular (or optional) query \emph{aggregate} combinators.  Some of aggregate
+combinators are listed in Table~\ref{tab:common-combinators}.
+
+The next example follows the same pattern.
+
+\begin{example}
+    \label{ex:max-employee-salary}
+    Show the highest salary of all employees.
+    \begin{equation*}
+        \Max(\Employee\To\Salary)
+    \end{equation*}
+\end{example}
+
+It extracts the relevant data with
+\begin{equation*}
+    \Employee\To\Salary : \Void \to \Seq{\Int}
+\end{equation*}
+and summarizes it using the $\Max$ aggregate
+\begin{equation*}
+    \Max(\Employee\To\Salary) : \Void \to \Opt{\Int}.
+\end{equation*}
+This query is optional since it produces no output when the database contains
+no employees.
+
+\begin{example}
+    \label{ex:department-count-employee}
+    Show the number of employees in each department.
+    \begin{equation*}
+        \Department\To\Count(\Employee)
+    \end{equation*}
+\end{example}
+
+In this example, we convert a plural relationship, \emph{all employees in the
+given department},
+\begin{equation*}
+    \Employee : \Dept \to \Seq{\Emp}
+\end{equation*}
+to a calculated attribute, \emph{the number of employees in the given
+department},
+\begin{equation*}
+    \Count(\Employee) : \Dept \to \Int.
+\end{equation*}
+Then we attach it to
+\begin{equation*}
+    \Department : \Void \to \Seq{\Dept}
+\end{equation*}
+to get \emph{the number of employees in every department}
+\begin{equation*}
+    \Department\To\Count(\Employee) : \Void \to \Seq{\Int}.
+\end{equation*}
+
+In the next example, this query is further transformed by applying the $\Max$
+aggregate.
+
+\begin{example}
+    \label{ex:max-department-count-employee}
+    Show the highest number of employees among all departments.
+    \begin{equation*}
+        \Max(\Department\To\Count(\Employee))
+    \end{equation*}
+\end{example}
+
+\subsection*{Pipeline Notation}
+
+Queries are often constructed incrementally, by extracting relevant data and
+then shaping it into the desired form with a chain of combinators.  This
+construction is made apparent with the \emph{pipeline notation}.
+
+In pipeline notation, the first argument of a combinator is placed in front of
+it, separated by colon ($\,\Apply\,$)
+\begin{equation*}
+    p \Apply F \equiv F(p), \qquad
+    p \Apply F(q_1,\ldots,q_n) \equiv F(p,q_1,\ldots,q_n).
+\end{equation*}
+For example, $\Count(\Department)$ could also be written
+\begin{equation*}
+    \Department\Apply\Count.
+\end{equation*}
+
+A more sophisticated query written in pipeline notation is shown in the
+following example.
+
+\begin{example}
+    \label{ex:top-ten-highest-paid-policemen}
+    Show the top 10 highest paid employees in the Police department.
+    \begin{align*}
+        & \Employee \\
+        & \Apply\Filter(\Department\To\Name = \textup{\texttt{"POLICE"}}) \\
+        & \Apply\Sort(\Salary\Apply\Desc) \\
+        & \Apply\Select(\Name,\; \Position,\; \Salary) \\
+        & \Apply\Take(10)
+    \end{align*}
+\end{example}
+
+Without pipeline notation, this query is much less intelligible:
+\begin{multline*}
+    \Take(\Select(\Sort(\Filter( \\
+    \Employee,\; \Department\To\Name = \texttt{"POLICE"}), \\
+    \Desc(\Salary)),\; \Name,\; \Position,\; \Salary),\; 10).
+\end{multline*}
+
+Combinators $\Filter$, $\Sort$, $\Select$ and $\Take$ used in this query are
+described below.
+
+\subsection*{Filtering Data}
+
+Next, we will demonstrate how to produce entities that satisfy a certain
+condition.
+
+\begin{example}
+    \label{ex:filter-by-salary}
+    Which employees have a salary higher than \$150k?
+    \begin{equation*}
+        \Employee\Apply\Filter(\Salary>150000)
+    \end{equation*}
+\end{example}
+
+This query introduces several concepts.
+
+First, the integer literal $150000$ represents a primitive query that
+\emph{for any given employee, produces the number $150000$}
+\begin{equation*}
+    150000 : \Emp \to \Int = e \mapsto 150000.
+\end{equation*}
+
+Second, the relational symbol ${>}$ denotes a binary combinator, which builds a
+query \emph{for a given employee, show whether their salary is higher than
+\$150000}
+\begin{equation*}
+    \Salary > 150000 : \Emp \to \Bool.
+\end{equation*}
+The combinator
+\begin{equation*}
+    {>} : (A \to \Int,\; A \to \Int) \to (A \to \Bool)
+\end{equation*}
+is implemented by lifting the relational operator
+\begin{equation*}
+    {>} : \Int \times \Int \to \Bool
+\end{equation*}
+to an operation on queries
+\begin{equation*}
+    (p > q) = a \mapsto (p(a) > q(a)).
+\end{equation*}
+For more examples of constants and regular functions lifted to query primitives
+and combinators, see Table~\ref{tab:common-combinators}.
+
+Third, a binary combinator $\Filter$ emits those $\Employee$ entities that
+satisfy the predicate query $\Salary > 150000$.  In general, given
+\begin{equation*}
+    p : A \to \Seq{B}, \qquad q : B \to \Bool
+\end{equation*}
+a query
+\begin{equation*}
+    \Filter(p,\; q) : A \to \Seq{B}
+\end{equation*}
+produces the values of $p$ that satisfy condition $q$
+\begin{equation*}
+    \Filter(p,\; q) = a \mapsto [\,b \mid b \gets p(a),\; q(b)=\True\,].
+\end{equation*}
+
+The following example shows how smoothly $\Filter$ combines with other
+combinators.
+
+\begin{example}
+    \label{ex:filter-by-size-and-count}
+    How many departments have more than 1000 employees?
+    \begin{align*}
+        & \Department \\
+        & \Apply\Filter(\Count(\Employee)>1000) \\
+        & \Apply\Count
+    \end{align*}
+\end{example}
+
+\subsection*{Sorting and Slicing Data}
+
+The combinator $\Sort$, applied to a plural query, sorts the query output in
+ascending order.
+
+\begin{example}
+    \label{ex:sort-department-name}
+    Show the names of all departments in alphabetical order.
+    \begin{equation*}
+        \Sort(\Department\To\Name)
+    \end{equation*}
+\end{example}
+
+The combinator $\Sort$ is implemented by lifting a sequence function
+\begin{equation*}
+    \Sort : \Seq{A} \to \Seq{A}
+\end{equation*}
+to a query combinator
+\begin{align*}
+    & \Sort : (A \to \Seq{B}) \to (A \to \Seq{B}), \\
+    & \Sort(p) = a \mapsto \Sort(p(a)).
+\end{align*}
+
+\begin{example}
+    \label{ex:sort-employee-by-salary}
+    Show all employees ordered by salary.
+    \begin{equation*}
+        \Employee\Apply\Sort(\Salary)
+    \end{equation*}
+\end{example}
+
+In this example, a list of employees is sorted by the value of the attribute
+$\Salary$, which is supplied as a second argument to the $\Sort$ combinator.
+In this form, $\Sort$ has a signature
+\begin{equation*}
+    \Sort : (A \to \Seq{B},\; B \to C) \to (A \to \Seq{B}).
+\end{equation*}
+
+\begin{example}
+    \label{ex:sort-employee-by-salary-desc}
+    Show all employees ordered by salary, highest paid first.
+    \begin{equation*}
+        \Employee\Apply\Sort(\Salary\Apply\Desc)
+    \end{equation*}
+\end{example}
+
+Here, the sort key is wrapped with the combinator $\Desc$ to indicate the
+descending sort order.
+
+It is not immediately obvious how to implement $\Desc$ without violating the
+query model.  Naively, $\Desc$ acts like a negation operator, however, not
+every type supports negation.  Instead, we can attach a sort order to each
+type, so that
+\begin{equation*}
+    \Int_{\le} \quad\text{and}\quad \Int_{\ge}
+\end{equation*}
+could indicate the integer type with ascending and descending sort order
+respectively.  Then, $\Desc$ could operate by switching the sort order of the
+output type and be given a signature
+\begin{equation*}
+    \Desc : (A \to B) \to (A \to B_{\ge}).
+\end{equation*}
+
+\begin{example}
+    \label{ex:sort-employee-by-salary-take-top}
+    Who are the top 1\% of highest paid employees?
+    \begin{align*}
+        & \Employee \\
+        & \Apply\Sort(\Salary\Apply\Desc) \\
+        & \Apply\Take(\Count(\Employee)\mathbin{/}100)
+    \end{align*}
+\end{example}
+
+In this example, only the first 1\% of employees are retained by the combinator
+$\Take$, which has two arguments: a query that produces a sequence of employees
+\begin{equation*}
+    \Employee\Apply\Sort(\Salary\Apply\Desc) : \Void \to \Seq{\Emp}
+\end{equation*}
+and a query that returns how many employees to take
+\begin{equation*}
+    \Count(\Employee)\mathbin{/}100 : \Void \to \Int.
+\end{equation*}
+Notice that both arguments of $\Take$ have the same input ($\Void$ in this
+case), which is reflected in the signature
+\begin{equation*}
+    \Take : (A \to \Seq{B},\; A \to \Int) \to (A \to \Seq{B}).
+\end{equation*}
+
+\subsection*{Query Output}
+
+The combinator $\Select$ customizes the query output.
+
+Previously, we constructed a query to \emph{show the number of employees in
+each department} (see Example~\ref{ex:department-count-employee}):
+\begin{equation*}
+    \Department\To\Count(\Employee).
+\end{equation*}
+However, this query only produces a list of bare numbers---it does not connect
+them to their respective departments.  This is corrected in the following example.
+
+\begin{example}
+    \label{ex:department-select-name-size}
+    For every department, show its name and the number of employees.
+    \begin{equation*}
+        \Department
+        \Apply\Select(\Name,\;\Size\As\Count(\Employee))
+    \end{equation*}
+\end{example}
+
+In this example, the combinator $\Select$ takes three arguments: the base query
+\begin{equation*}
+    \Department : \Void \to \Seq{\Dept}
+\end{equation*}
+and two field queries
+\begin{alignat*}{3}
+    & \Name && : \Dept && \to \Text, \\
+    & \Count(\Employee) && : \Dept && \to \Int.
+\end{alignat*}
+The $\Select$ combinator generates a sequence of records by applying each field
+query to every entity produced by the base query, giving this example a
+signature
+\begin{equation*}
+    \Void \to \Seq{\Tuple{\Name:\Text,\; \Size:\Int}}.
+\end{equation*}
+The declaration
+\begin{equation*}
+    \Tuple{\Name:\Text,\; \Size:\Int}
+\end{equation*}
+defines a \emph{record} type with two fields: a text field $\Name$ and an
+integer field $\Size$.  The names of the record fields are derived from the
+tags of the field queries, which could be set using the \emph{tagging
+notation}.  For example,
+\begin{equation*}
+    \Size \As \Count(\Employee)
+\end{equation*}
+binds a tag $\Size$ to the query $\Count(\Employee)$.  Since the tag does not
+materially affect the query it annotates, we do not expose the tag in the query
+model.
+
+A more complex output structure could be defined with nested $\Select$ combinators.
+
+\begin{example}
+    \label{ex:department-select-name-size-etc}
+    For every department, show the top salary and a list of managers with their
+    salaries.
+    \begin{alignat*}{4}
+        & \Department\hidewidth && && && \\
+        & \Apply\Select( && \Name, && && \\
+            & && \TopSalary && \As\; && \Max(\Employee\To\Salary), \\
+            & && \Manager && \As\; && \Employee \\
+            & && && && \Apply\Filter(\Exists(\Subordinate)) \\
+            & && && && \Apply\Select(\Name,\; \Salary))
+    \end{alignat*}
+\end{example}
+
+In this example, the query output has the type
+\begin{align*}
+    \Seq{\Tuple{& \Name : \Text,\; \TopSalary : \Opt{\Int}, \\
+    & \Manager : \Seq{\Tuple{\Name : \Text,\; \Salary : \Int}}}}.
+\end{align*}
+
+Recall that we could represent the data source in a hierarchical form (see
+Figure~\ref{fig:unfolded-form}).  Furthermore, the query output could also be
+represented as a hierarchical database, whose structure is determined by the
+query signature (see Figure~\ref{fig:department-select-name-size-etc}).  Thus,
+a query could be seen as transforming one hierarchical database to another.
+
+\begin{figure}
+    \centering
+    \begin{forest}
+        void/.style = {
+            draw, circle,
+        },
+        map/.style = {
+            draw, rectangle, rounded corners=1mm,
+            minimum width=2cm, minimum height=.5cm,
+            text height=1.5ex, text depth=.25ex,
+            font=\small\sffamily},
+        singular/.style = {
+            edge={-}},
+        optional/.style = {
+            edge={-{Circle[open,length=3.5pt]}}},
+        plural/.style = {
+            edge={-{Straight Barb[reversed,length=3.5pt]}, shorten >=-0.3pt}},
+        for tree = {
+            grow'=0,
+            child anchor=west,
+            parent anchor=east,
+            anchor=west,
+            calign=first,
+            edge path={\noexpand\path [\forestoption{edge}] (!u.parent anchor) -- +(0.1cm,0) |- (.child anchor);},
+            fit=band}
+        [{},void
+            [department,map,plural
+                [name,map,singular]
+                [top\_salary,map,optional]
+                [manager,map,plural
+                    [name,map,singular],
+                    [salary,map,singular]]]]
+    \end{forest}
+    \caption{Output database for Example~\ref{ex:department-select-name-size-etc}}
+    \label{fig:department-select-name-size-etc}
+\end{figure}
+
+\subsection*{Query Aliases}
+
+A complex query could often be simplified by replacing duplicate expressions
+with aliases.
+
+\begin{example}
+    \label{ex:department-define-size}
+    Show the top 3 largest departments and their sizes.
+    \begin{align*}
+        & \Department \\
+        & \Apply\Define(\Size\As\Count(\Employee)) \\
+        & \Apply\Sort(\Size\Apply\Desc) \\
+        & \Apply\Select(\Name,\; \Size) \\
+        & \Apply\Take(3)
+    \end{align*}
+\end{example}
+
+In this example, the alias $\Size$ is created in two steps: first, the query
+\begin{equation*}
+    \Count(\Employee): \Dept \to \Int
+\end{equation*}
+is tagged with the name $\Size$, and then $\Size$ is added to scope of $\Dept$
+by the combinator $\Define$.
+
+Although this query could have been written as
+\begin{align*}
+    & \Department \\
+    & \Apply\Sort(\Count(\Employee)\Apply\Desc) \\
+    & \Apply\Select(\Name,\; \Count(\Employee)) \\
+    & \Apply\Take(3),
+\end{align*}
+the use of an alias makes this example more legible, not only by reducing
+redundancy, but also by assigning a name to a key concept of the query.
+
+\subsection*{Hierarchical Relationships}
+
+Hierarchical relationships are encoded by primitives with identical types of
+input and output.
+
+For example, a relationship between an employee and their manager is expressed
+with
+\begin{equation*}
+    \Manager : \Emp \to \Opt{\Emp}.
+\end{equation*}
+
+\begin{example}
+    \label{ex:employee-filter-salary-manager}
+    Find all employees whose salary is higher than the salary of their manager.
+    \begin{equation*}
+        \Employee\Apply\Filter(\Salary>\Manager\To\Salary)
+    \end{equation*}
+\end{example}
+
+This example uses familiar combinators $\Filter$ and ${>}$ (see
+Example~\ref{ex:filter-by-salary}), but an alert reader will notice the
+disagreement between the signature of the combinator
+\begin{equation*}
+    {>} : (A \to \Int,\; A \to \Int) \to (A \to \Bool)
+\end{equation*}
+and the signatures of its arguments
+\begin{alignat*}{3}
+    & \Salary && : \Emp && \to \Int, \\
+    & \Manager\To\Salary && : \Emp && \to \Opt{\Int}.
+\end{alignat*}
+Namely, ${>}$ expects its arguments to be singular, but the output of
+$\Manager\To\Salary$ is optional.
+
+To legitimize this query, we adopt the following rule.  When one argument of a
+scalar combinator has a non-trivial cardinality, this cardinality can be
+promoted to the output of the combinator.  This rule gives ${>}$ a signature
+\begin{equation*}
+    {>} : (A \to \Int,\; A \to M\{\Int\}) \to (A \to M\{\Bool\})
+\end{equation*}
+or, in this specific case,
+\begin{equation*}
+    \Salary > \Manager\To\Salary : \Emp \to \Opt{\Bool}.
+\end{equation*}
+Finally, we need to let $\Filter$ accept predicate queries with optional
+output, by treating $\bot$ as $\False$.
+
+Using expressions
+\begin{align*}
+    & \Manager, \\
+    & \Manager\To\Manager, \\
+    & \Manager\To\Manager\To\Manager,\; \ldots
+\end{align*}
+we can build queries that involve the manager, the manager's manager, etc.  We
+can also obtain \emph{the complete chain of command for the given employee}
+with
+\begin{equation*}
+    \Connect(\Manager) : \Emp \to \Seq{\Emp}.
+\end{equation*}
+
+\begin{example}
+    \label{ex:employee-salary-vs-superior}
+    How does employees' salary compare to the average of their superiors?
+    \begin{alignat*}{2}
+        & \Employee\hidewidth && \\
+        & \Apply\Select(&& \Name, \\
+        & && \Salary-\Mean(\Connect(\Manager)\To\Salary))
+    \end{alignat*}
+\end{example}
+
+The query
+\begin{equation*}
+    \Connect(\Manager)\To\Salary : \Emp \to \Seq{\Int}
+\end{equation*}
+produces \emph{the salaries of all managers above the given employee}.  They
+are collapsed to a single number with the combinator $\Mean$.
+
+In general, the combinator $\Connect$ maps an optional self-referential query to a
+plural self-referential query by taking its transitive closure:
+\begin{multline*}
+    \Connect : (A \to \Opt{B}) \to (A \to \Seq{B}), \\
+    \shoveleft{\Connect(p) = a \mapsto [\;p(a),\; p(p(a)),\; \ldots,\; p^{(n)}(a)\;]} \\
+    (p^{(n)}(a) \ne \bot,\; p^{(n+1)}(a) = \bot).
+\end{multline*}
+
+\begin{table}
+    \begin{framed}
+    \textbf{Identity and constants}
+    \begin{alignat*}{3}
+        & \Here && : A \to A && = a \mapsto a \\
+        & 150000 && : A \to \Int && = a \mapsto 150000 \\
+        %& \True && : A \to \Bool && = a \mapsto \True \\
+        & \texttt{"POLICE"} && : A \to \Text && = a \mapsto \texttt{"POLICE"} \\
+        & \Null && : A \to \Opt{B} && = a \mapsto \bot
+    \end{alignat*}
+    \textbf{Some scalar combinators}
+    \begin{alignat*}{3}
+        & {=},\;{\ne} && : (A \to B,\; A \to B) && \to (A \to \Bool) \\
+        & {<},\;{\le},\;{>},\;{\ge} && : (A \to B,\; A \to B) && \to (A \to \Bool) \\
+        & {\&},\;{|} && : (A \to \Bool,\; A \to \Bool) && \to (A \to \Bool) \\
+        & {+},\;{-} && : (A \to \Int,\; A \to \Int) && \to (A \to \Int) \\
+        & \Length && : (A \to \Text) && \to (A \to \Int)
+    \end{alignat*}
+    \textbf{Aggregate combinators}
+    \begin{alignat*}{3}
+        & \Count && : (A \to \Seq{B}) && \to (A \to \Int) \\
+        & \Exists && : (A \to \Seq{B}) && \to (A \to \Bool) \\
+        & \Any,\; \All && : (A \to \Seq{\Bool}) && \to (A \to \Bool) \\
+        & \Sum && : (A \to \Seq{\Int}) && \to (A \to \Int) \\
+        & \Max,\; \Min && : (A \to \Seq{\Int}) && \to (A \to \Opt{\Int})
+    \end{alignat*}
+    \textbf{Sequence transformers}
+    \begin{alignat*}{4}
+        & \Filter && : (&& A \to \Seq{B},\; B \to \Bool) && \to (A \to \Seq{B}) \\
+        & \Sort && : (&& A \to \Seq{B},\; && \\
+        & && && B \to C_1,\; \ldots,\; B \to C_n) && \to (A \to \Seq{B}) \\
+        & \Take,\; \Skip && : (&& A \to \Seq{B},\; A \to \Int) && \to (A \to \Seq{B}) \\
+        & \Unique && : (&& A \to \Seq{B}) && \to (A \to \Seq{B})
+    \end{alignat*}
+    \textbf{Selector and modifiers}
+    \begin{alignat*}{2}
+        & \Select & : (& A \to M\{B\}, \\
+        & && B \to M_1\{C_1\},\; \ldots,\; B \to M_n\{C_n\}) \\
+        & & \to (& A \to M\{\Tuple{M_1\{C_1\},\; \ldots,\; M_n\{C_n\}}\}) \\
+        & \Define & : (& A \to M\{B\},\; B \to T) \to (A \to M\{B\}) \\
+        & \Asc,\; \Desc & : (& A \to B) \to (A \to B_\lessgtr)
+    \end{alignat*}
+    \textbf{Hierarchical connector}
+    \begin{equation*}
+        \Connect : (A \to \Opt{A}) \to (A \to \Seq{A})
+    \end{equation*}
+    \textbf{Grouping}
+    \begin{alignat*}{2}
+        & \Group & : (& A \to \Seq{B},\; B \to C_1,\; \ldots,\; B \to C_n) \\
+        & & \to (& A \to \Seq{\Tuple{C_1,\; \ldots,\; C_n,\; \Seq{B}}}) \\
+        & \Cube & : (& A \to \Seq{B},\; B \to C_1,\; \ldots,\; B \to C_n) \\
+        & & \to (& A \to \Seq{\Tuple{\Opt{C_1},\; \ldots,\; \Opt{C_n},\; \Seq{B}}})
+    \end{alignat*}
+    \textbf{Context primitives and combinators}
+    \begin{alignat*}{2}
+        & \Before,\; \Around : \Rel{A} \to \Seq{A} \\
+        & \Given : (\Ctx{T}{A} \to M\{B\},\; A \to T) \to (A \to M\{B\}) \\
+        & \textit{\textsf{PARAM}} : \Ctx{T}{A} \to T
+    \end{alignat*}
+    \end{framed}
+    \caption{Common combinators and primitives}
+    \label{tab:common-combinators}
+\end{table}
+

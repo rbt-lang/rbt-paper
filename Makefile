@@ -9,5 +9,5 @@ rbt-paper.pdf: ${SOURCES}
 	pdflatex rbt-paper
 
 clean:
-	rm -f *.log *.aux *.pdf
+	rm -f *.log *.aux *.bbl *.blg *.pdf
 
