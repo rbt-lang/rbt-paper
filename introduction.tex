@@ -40,33 +40,7 @@ and output, for example
 \end{alignat*}
 This is known as the functional database model (\cite{Kerschberg1976}).
 
-\begin{figure}
-    \centering
-    \begin{tikzpicture}
-        [
-            > = stealth',
-            shorten > = 1pt,
-            node distance = 2cm and 2.5cm,
-            set/.style = {
-                draw, rectangle, thick, font=\sffamily,
-                minimum width=1.5cm, minimum height=.75cm,
-                text height=1.5ex, text depth=.25ex},
-            map/.style = {font=\small\sffamily}
-        ]
-        \node [set] (Dept) {Dept};
-        \node [set] (Emp) [right=of Dept] {Emp};
-        \node [set] (Text) [below=of Dept] {Text};
-        \node [set] (Int) [below=of Emp] {Int};
-        \draw [->] (Dept) to [bend right=15] node [map, right] {name} (Text);
-        \draw [->] (Emp) to [bend right=15] node [map, right] {\;name} (Text);
-        \draw [->] (Emp) to [bend left=15] node [map, right] {\;position} (Text);
-        \draw [->] (Emp) to [bend left=15] node [map, right] {salary} (Int);
-        \draw [->] (Emp) to node [map, above] {department} (Dept);
-        \draw [->] (Emp) to [loop right] node [map, right] {manager} (Emp);
-    \end{tikzpicture}
-    \caption{Sample database}
-    \label{fig:sample-schema}
-\end{figure}
+\input{figure-sample-schema}
 
 This model provides us with a starting point on our combinator pattern roadmap.
 Any function on an entity set could be seen as a database query.  Then, all the

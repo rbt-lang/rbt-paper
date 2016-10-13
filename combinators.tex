@@ -462,7 +462,7 @@ model.
 A more complex output structure could be defined with nested $\Select$ combinators.
 
 \begin{example}
-    \label{ex:department-select-name-size-etc}
+    \label{ex:department-select-name-etc}
     For every department, show the top salary and a list of managers with their
     salaries.
     \begin{alignat*}{4}
@@ -484,45 +484,10 @@ In this example, the query output has the type
 Recall that we could represent the data source in a hierarchical form (see
 Figure~\ref{fig:unfolded-form}).  Furthermore, the query output could also be
 represented as a hierarchical database, whose structure is determined by the
-query signature (see Figure~\ref{fig:department-select-name-size-etc}).  Thus,
+query signature (see Figure~\ref{fig:department-select-name-etc}).  Thus,
 a query could be seen as transforming one hierarchical database to another.
 
-\begin{figure}
-    \centering
-    \begin{forest}
-        void/.style = {
-            draw, circle,
-        },
-        map/.style = {
-            draw, rectangle, rounded corners=1mm,
-            minimum width=2cm, minimum height=.5cm,
-            text height=1.5ex, text depth=.25ex,
-            font=\small\sffamily},
-        singular/.style = {
-            edge={-}},
-        optional/.style = {
-            edge={-{Circle[open,length=3.5pt]}}},
-        plural/.style = {
-            edge={-{Straight Barb[reversed,length=3.5pt]}, shorten >=-0.3pt}},
-        for tree = {
-            grow'=0,
-            child anchor=west,
-            parent anchor=east,
-            anchor=west,
-            calign=first,
-            edge path={\noexpand\path [\forestoption{edge}] (!u.parent anchor) -- +(0.1cm,0) |- (.child anchor);},
-            fit=band}
-        [{},void
-            [department,map,plural
-                [name,map,singular]
-                [top\_salary,map,optional]
-                [manager,map,plural
-                    [name,map,singular],
-                    [salary,map,singular]]]]
-    \end{forest}
-    \caption{Output database for Example~\ref{ex:department-select-name-size-etc}}
-    \label{fig:department-select-name-size-etc}
-\end{figure}
+\input{figure-department-select-name-etc}
 
 \subsection*{Query Aliases}
 
@@ -642,67 +607,5 @@ plural self-referential query by taking its transitive closure:
     (p^{(n)}(a) \ne \bot,\; p^{(n+1)}(a) = \bot).
 \end{multline*}
 
-\begin{table}
-    \begin{framed}
-    \textbf{Identity and constants}
-    \begin{alignat*}{3}
-        & \Here && : A \to A && = a \mapsto a \\
-        & 150000 && : A \to \Int && = a \mapsto 150000 \\
-        %& \True && : A \to \Bool && = a \mapsto \True \\
-        & \texttt{"POLICE"} && : A \to \Text && = a \mapsto \texttt{"POLICE"} \\
-        & \Null && : A \to \Opt{B} && = a \mapsto \bot
-    \end{alignat*}
-    \textbf{Some scalar combinators}
-    \begin{alignat*}{3}
-        & {=},\;{\ne} && : (A \to B,\; A \to B) && \to (A \to \Bool) \\
-        & {<},\;{\le},\;{>},\;{\ge} && : (A \to B,\; A \to B) && \to (A \to \Bool) \\
-        & {\&},\;{|} && : (A \to \Bool,\; A \to \Bool) && \to (A \to \Bool) \\
-        & {+},\;{-} && : (A \to \Int,\; A \to \Int) && \to (A \to \Int) \\
-        & \Length && : (A \to \Text) && \to (A \to \Int)
-    \end{alignat*}
-    \textbf{Aggregate combinators}
-    \begin{alignat*}{3}
-        & \Count && : (A \to \Seq{B}) && \to (A \to \Int) \\
-        & \Exists && : (A \to \Seq{B}) && \to (A \to \Bool) \\
-        & \Any,\; \All && : (A \to \Seq{\Bool}) && \to (A \to \Bool) \\
-        & \Sum && : (A \to \Seq{\Int}) && \to (A \to \Int) \\
-        & \Max,\; \Min && : (A \to \Seq{\Int}) && \to (A \to \Opt{\Int})
-    \end{alignat*}
-    \textbf{Sequence transformers}
-    \begin{alignat*}{4}
-        & \Filter && : (&& A \to \Seq{B},\; B \to \Bool) && \to (A \to \Seq{B}) \\
-        & \Sort && : (&& A \to \Seq{B},\; && \\
-        & && && B \to C_1,\; \ldots,\; B \to C_n) && \to (A \to \Seq{B}) \\
-        & \Take,\; \Skip && : (&& A \to \Seq{B},\; A \to \Int) && \to (A \to \Seq{B}) \\
-        & \Unique && : (&& A \to \Seq{B}) && \to (A \to \Seq{B})
-    \end{alignat*}
-    \textbf{Selector and modifiers}
-    \begin{alignat*}{2}
-        & \Select & : (& A \to M\{B\}, \\
-        & && B \to M_1\{C_1\},\; \ldots,\; B \to M_n\{C_n\}) \\
-        & & \to (& A \to M\{\Tuple{M_1\{C_1\},\; \ldots,\; M_n\{C_n\}}\}) \\
-        & \Define & : (& A \to M\{B\},\; B \to T) \to (A \to M\{B\}) \\
-        & \Asc,\; \Desc & : (& A \to B) \to (A \to B_\lessgtr)
-    \end{alignat*}
-    \textbf{Hierarchical connector}
-    \begin{equation*}
-        \Connect : (A \to \Opt{A}) \to (A \to \Seq{A})
-    \end{equation*}
-    \textbf{Grouping}
-    \begin{alignat*}{2}
-        & \Group & : (& A \to \Seq{B},\; B \to C_1,\; \ldots,\; B \to C_n) \\
-        & & \to (& A \to \Seq{\Tuple{C_1,\; \ldots,\; C_n,\; \Seq{B}}}) \\
-        & \Cube & : (& A \to \Seq{B},\; B \to C_1,\; \ldots,\; B \to C_n) \\
-        & & \to (& A \to \Seq{\Tuple{\Opt{C_1},\; \ldots,\; \Opt{C_n},\; \Seq{B}}})
-    \end{alignat*}
-    \textbf{Context primitives and combinators}
-    \begin{alignat*}{2}
-        & \Before,\; \Around : \Rel{A} \to \Seq{A} \\
-        & \Given : (\Ctx{T}{A} \to M\{B\},\; A \to T) \to (A \to M\{B\}) \\
-        & \textit{\textsf{PARAM}} : \Ctx{T}{A} \to T
-    \end{alignat*}
-    \end{framed}
-    \caption{Common combinators and primitives}
-    \label{tab:common-combinators}
-\end{table}
+\input{table-common-combinators}
 

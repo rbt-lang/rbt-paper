@@ -1,0 +1,65 @@
+
+\begin{table}
+    \begin{framed}
+    \textbf{Identity and constants}
+    \begin{alignat*}{3}
+        & \Here && : A \to A && = a \mapsto a \\
+        & 150000 && : A \to \Int && = a \mapsto 150000 \\
+        %& \True && : A \to \Bool && = a \mapsto \True \\
+        & \texttt{"POLICE"} && : A \to \Text && = a \mapsto \texttt{"POLICE"} \\
+        & \Null && : A \to \Opt{B} && = a \mapsto \bot
+    \end{alignat*}
+    \textbf{Some scalar combinators}
+    \begin{alignat*}{3}
+        & {=},\;{\ne} && : (A \to B,\; A \to B) && \to (A \to \Bool) \\
+        & {<},\;{\le},\;{>},\;{\ge} && : (A \to B,\; A \to B) && \to (A \to \Bool) \\
+        & {\&},\;{|} && : (A \to \Bool,\; A \to \Bool) && \to (A \to \Bool) \\
+        & {+},\;{-} && : (A \to \Int,\; A \to \Int) && \to (A \to \Int) \\
+        & \Length && : (A \to \Text) && \to (A \to \Int)
+    \end{alignat*}
+    \textbf{Aggregate combinators}
+    \begin{alignat*}{3}
+        & \Count && : (A \to \Seq{B}) && \to (A \to \Int) \\
+        & \Exists && : (A \to \Seq{B}) && \to (A \to \Bool) \\
+        & \Any,\; \All && : (A \to \Seq{\Bool}) && \to (A \to \Bool) \\
+        & \Sum && : (A \to \Seq{\Int}) && \to (A \to \Int) \\
+        & \Max,\; \Min && : (A \to \Seq{\Int}) && \to (A \to \Opt{\Int})
+    \end{alignat*}
+    \textbf{Sequence transformers}
+    \begin{alignat*}{4}
+        & \Filter && : (&& A \to \Seq{B},\; B \to \Bool) && \to (A \to \Seq{B}) \\
+        & \Sort && : (&& A \to \Seq{B},\; && \\
+        & && && B \to C_1,\; \ldots,\; B \to C_n) && \to (A \to \Seq{B}) \\
+        & \Take,\; \Skip && : (&& A \to \Seq{B},\; A \to \Int) && \to (A \to \Seq{B}) \\
+        & \Unique && : (&& A \to \Seq{B}) && \to (A \to \Seq{B})
+    \end{alignat*}
+    \textbf{Selector and modifiers}
+    \begin{alignat*}{2}
+        & \Select & : (& A \to M\{B\}, \\
+        & && B \to M_1\{C_1\},\; \ldots,\; B \to M_n\{C_n\}) \\
+        & & \to (& A \to M\{\Tuple{M_1\{C_1\},\; \ldots,\; M_n\{C_n\}}\}) \\
+        & \Define & : (& A \to M\{B\},\; B \to T) \to (A \to M\{B\}) \\
+        & \Asc,\; \Desc & : (& A \to B) \to (A \to B_\lessgtr)
+    \end{alignat*}
+    \textbf{Hierarchical connector}
+    \begin{equation*}
+        \Connect : (A \to \Opt{A}) \to (A \to \Seq{A})
+    \end{equation*}
+    \textbf{Grouping}
+    \begin{alignat*}{2}
+        & \Group & : (& A \to \Seq{B},\; B \to C_1,\; \ldots,\; B \to C_n) \\
+        & & \to (& A \to \Seq{\Tuple{C_1,\; \ldots,\; C_n,\; \Seq{B}}}) \\
+        & \Cube & : (& A \to \Seq{B},\; B \to C_1,\; \ldots,\; B \to C_n) \\
+        & & \to (& A \to \Seq{\Tuple{\Opt{C_1},\; \ldots,\; \Opt{C_n},\; \Seq{B}}})
+    \end{alignat*}
+    \textbf{Context primitives and combinators}
+    \begin{alignat*}{2}
+        & \Before,\; \Around : \Rel{A} \to \Seq{A} \\
+        & \Given : (\Ctx{T}{A} \to M\{B\},\; A \to T) \to (A \to M\{B\}) \\
+        & \textit{\textsf{PARAM}} : \Ctx{T}{A} \to T
+    \end{alignat*}
+    \end{framed}
+    \caption{Common combinators and primitives}
+    \label{tab:common-combinators}
+\end{table}
+

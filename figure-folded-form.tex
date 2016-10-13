@@ -1,0 +1,34 @@
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}
+        [
+            > = stealth',
+            shorten > = 1pt,
+            node distance = 1.8cm and 0.5cm,
+            set/.style = {
+                draw, rectangle, thick, font=\sffamily,
+                minimum width=1.5cm, minimum height=.75cm,
+                text height=1.5ex, text depth=.25ex},
+            map/.style = {font=\small\sffamily}
+        ]
+        \node [set] (Void) {Void};
+        \node [set] (Dept) [below left=of Void] {Dept};
+        \node [set] (Emp) [below right=of Void] {Emp};
+        \node [set] (Text) [below=of Dept] {Text};
+        \node [set] (Int) [below=of Emp] {Int};
+        \draw [->] (Void) to [bend right=10] node [map, right] {department} (Dept);
+        \draw [->] (Void) to [bend left=10] node [map, right] {employee} (Emp);
+        \draw [->] (Dept) to [bend right=10] node [map, right] {name} (Text);
+        \draw [->] (Dept) to [bend right=5] node [map, below] {employee} (Emp);
+        \draw [->] (Emp) to [bend right=12] node [map, right] {\;name} (Text);
+        \draw [->] (Emp) to [bend left=12] node [map, right] {\;position} (Text);
+        \draw [->] (Emp) to [bend left=10] node [map, right] {salary} (Int);
+        \draw [->] (Emp) to [bend right=5] node [map, above] {department} (Dept);
+        \draw [->] (Emp) to [loop right,out=60,in=10,looseness=7] node [map, right] {manager} (Emp);
+        \draw [->] (Emp) to [loop right,out=300,in=350,looseness=7] node [map, right] {subordinate} (Emp);
+    \end{tikzpicture}
+    \caption{Database schema in folded form}
+    \label{fig:folded-form}
+\end{figure}
+
