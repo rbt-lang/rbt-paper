@@ -1,20 +1,11 @@
 
 \begin{figure}
     \centering
-    \begin{tikzpicture}
-        [
-            > = stealth',
-            shorten > = 1pt,
-            node distance = 1.8cm and 0.5cm,
-            set/.style = {
-                draw, rectangle, thick, font=\sffamily,
-                minimum width=1.5cm, minimum height=.75cm,
-                text height=1.5ex, text depth=.25ex},
-            map/.style = {font=\small\sffamily}
-        ]
-        \node [set] (Void) {Void};
-        \node [set] (Dept) [below left=of Void] {Dept};
-        \node [set] (Emp) [below right=of Void] {Emp};
+    \begin{tikzpicture}[entity diagram]
+        \node [set] (Dept) {Dept};
+        \node [set] (Emp) [right=of Dept] {Emp};
+        \coordinate (BetweenDeptAndEmp) at ($(Dept)!0.5!(Emp)$);
+        \node [set] (Void) [above=of BetweenDeptAndEmp]{Void};
         \node [set] (Text) [below=of Dept] {Text};
         \node [set] (Int) [below=of Emp] {Int};
         \draw [->] (Void) to [bend right=10] node [map, right] {department} (Dept);

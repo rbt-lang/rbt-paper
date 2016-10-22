@@ -234,7 +234,7 @@ following example.
     Show the top 10 highest paid employees in the Police department.
     \begin{align*}
         & \Employee \\
-        & \Apply\Filter(\Department\To\Name = \textup{\texttt{"POLICE"}}) \\
+        & \Apply\Filter(\Department\To\Name = \textliteral{POLICE}) \\
         & \Apply\Sort(\Salary\Apply\Desc) \\
         & \Apply\Select(\Name,\; \Position,\; \Salary) \\
         & \Apply\Take(10)
@@ -244,7 +244,7 @@ following example.
 Without pipeline notation, this query is much less intelligible:
 \begin{multline*}
     \Take(\Select(\Sort(\Filter( \\
-    \Employee,\; \Department\To\Name = \texttt{"POLICE"}), \\
+    \Employee,\; \Department\To\Name = \textliteral{POLICE}), \\
     \Desc(\Salary)),\; \Name,\; \Position,\; \Salary),\; 10).
 \end{multline*}
 
@@ -389,7 +389,7 @@ output type and be given a signature
     \begin{align*}
         & \Employee \\
         & \Apply\Sort(\Salary\Apply\Desc) \\
-        & \Apply\Take(\Count(\Employee)\mathbin{/}100)
+        & \Apply\Take(\Count(\Employee)\mathbin \div 100)
     \end{align*}
 \end{example}
 
@@ -400,7 +400,7 @@ $\Take$, which has two arguments: a query that produces a sequence of employees
 \end{equation*}
 and a query that returns how many employees to take
 \begin{equation*}
-    \Count(\Employee)\mathbin{/}100 : \Void \to \Int.
+    \Count(\Employee) \div 100 : \Void \to \Int.
 \end{equation*}
 Notice that both arguments of $\Take$ have the same input ($\Void$ in this
 case), which is reflected in the signature
@@ -477,8 +477,8 @@ A more complex output structure could be defined with nested $\Select$ combinato
 
 In this example, the query output has the type
 \begin{align*}
-    \Seq{\Tuple{& \Name : \Text,\; \TopSalary : \Opt{\Int}, \\
-    & \Manager : \Seq{\Tuple{\Name : \Text,\; \Salary : \Int}}}}.
+    \keyword{Seq}\{\Tuple{& \Name : \Text,\; \TopSalary : \Opt{\Int}, \\
+    & \Manager : \Seq{\Tuple{\Name : \Text,\; \Salary : \Int}}}\}.
 \end{align*}
 
 Recall that we could represent the data source in a hierarchical form (see
@@ -602,7 +602,7 @@ are collapsed to a single number with the combinator $\Mean$.
 In general, the combinator $\Connect$ maps an optional self-referential query to a
 plural self-referential query by taking its transitive closure:
 \begin{multline*}
-    \Connect : (A \to \Opt{B}) \to (A \to \Seq{B}), \\
+    \Connect : (A \to \Opt{A}) \to (A \to \Seq{A}), \\
     \shoveleft{\Connect(p) = a \mapsto [\;p(a),\; p(p(a)),\; \ldots,\; p^{(n)}(a)\;]} \\
     (p^{(n)}(a) \ne \bot,\; p^{(n+1)}(a) = \bot).
 \end{multline*}

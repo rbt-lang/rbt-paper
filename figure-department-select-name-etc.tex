@@ -2,35 +2,14 @@
 \begin{figure}
     \centering
     \begin{forest}
-        void/.style = {
-            draw, circle,
-        },
-        map/.style = {
-            draw, rectangle, rounded corners=1mm,
-            minimum width=2cm, minimum height=.5cm,
-            text height=1.5ex, text depth=.25ex,
-            font=\small\sffamily},
-        singular/.style = {
-            edge={-}},
-        optional/.style = {
-            edge={-{Circle[open,length=3.5pt]}}},
-        plural/.style = {
-            edge={-{Straight Barb[reversed,length=3.5pt]}, shorten >=-0.3pt}},
-        for tree = {
-            grow'=0,
-            child anchor=west,
-            parent anchor=east,
-            anchor=west,
-            calign=first,
-            edge path={\noexpand\path [\forestoption{edge}] (!u.parent anchor) -- +(0.1cm,0) |- (.child anchor);},
-            fit=band}
-        [{},void
-            [department,map,plural
-                [name,map,singular]
-                [top\_salary,map,optional]
-                [manager,map,plural
-                    [name,map,singular],
-                    [salary,map,singular]]]]
+        unfolded database
+        [,void
+            [$\Department$,map,plural
+                [$\Name$,map,singular]
+                [$\TopSalary$,map,optional]
+                [$\Manager$,map,plural
+                    [$\Name$,map,singular],
+                    [$\Salary$,map,singular]]]]
     \end{forest}
     \caption{Output database for Example~\ref{ex:department-select-name-etc}}
     \label{fig:department-select-name-etc}

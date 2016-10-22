@@ -1,17 +1,7 @@
 
 \begin{figure}
     \centering
-    \begin{tikzpicture}
-        [
-            > = stealth',
-            shorten > = 1pt,
-            node distance = 2cm and 2.5cm,
-            set/.style = {
-                draw, rectangle, thick, font=\sffamily,
-                minimum width=1.5cm, minimum height=.75cm,
-                text height=1.5ex, text depth=.25ex},
-            map/.style = {font=\small\sffamily}
-        ]
+    \begin{tikzpicture}[entity diagram]
         \node [set] (Dept) {Dept};
         \node [set] (Emp) [right=of Dept] {Emp};
         \node [set] (Text) [below=of Dept] {Text};

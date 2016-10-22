@@ -1,0 +1,26 @@
+
+\begin{figure}
+    \centering
+    \begin{forest}
+        unfolded database
+        [,phantom
+            [,phantom
+                [,void
+                    [$\Employee$,map,plural,selected,name=src employee
+                        [$\Name$,map,singular]
+                        [$\Position$,map,singular,selected,selected edge]
+                        [$\Salary$,map,singular,and more]
+                        [,phantom]]]]
+            [,void
+                [$\begin{aligned}&\Employee\\&\Apply\Group(\Position)\end{aligned}$,box,plural,selected,name=tgt group
+                    [$\Position$,map,singular,selected,selected edge]
+                    [$\Employee$,map,plural,selected,selected edge
+                        [$\Name$,map,singular]
+                        [$\Position$,map,singular]
+                        [$\Salary$,map,singular,and more]]]]]
+        \draw[traverse] (src employee.south east) +(0,-0.25cm) to [bend right=10] (tgt group);
+    \end{forest}
+    \caption{Action of the $\Group$ combinator}
+    \label{fig:group-combinator}
+\end{figure}
+

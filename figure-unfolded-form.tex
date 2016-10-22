@@ -2,59 +2,32 @@
 \begin{figure}
     \centering
     \begin{forest}
-        void/.style = {
-            draw, circle,
-        },
-        map/.style = {
-            draw, rectangle, rounded corners=1mm,
-            minimum width=2cm, minimum height=.5cm,
-            text height=1.5ex, text depth=.25ex,
-            font=\small\sffamily},
-        more/.style = {
-            rectangle, minimum height=.5cm,
-            edge={-, dashed},
-            edge path={
-                \noexpand\path [\forestoption{edge}]
-                (!u.parent anchor) -- +(0.3cm,0);},
-            l sep=0
-        },
-        singular/.style = {
-            edge={-}},
-        optional/.style = {
-            edge={-{Circle[open,length=3.5pt]}}},
-        plural/.style = {
-            edge={-{Straight Barb[reversed,length=3.5pt]}, shorten >=-0.3pt}},
-        for tree = {
-            grow'=0,
-            child anchor=west,
-            parent anchor=east,
-            anchor=west,
-            calign=first,
-            edge path={\noexpand\path [\forestoption{edge}] (!u.parent anchor) -- +(0.1cm,0) |- (.child anchor);},
-            fit=band}
-        [{},void
-            [department,map,plural
-                [name,map,singular]
-                [employee,map,plural
-                    [name,map,singular]
-                    [position,map,singular]
-                    [department,map,singular
-                        [,more,l sep=0]]
-                    [manager,map,optional
+        unfolded database
+        [,void
+            [$\Department$,map,plural
+                [$\Name$,map,singular]
+                [$\Employee$,map,plural
+                    [$\Name$,map,singular]
+                    [$\Position$,map,singular]
+                    [$\Salary$,map,singular]
+                    [$\Department$,map,singular
                         [,more]]
-                    [subordinate,map,plural
-                        [,more]]]]
-            [employee,map,plural
-                [name,map,singular]
-                [position,map,singular]
-                [salary,map,singular]
-                [department,map,singular
-                    [name,map,singular]
-                    [employee,map,plural
+                    [$\Manager$,map,optional
+                        [,more]]
+                    [$\Subordinate$,map,plural
+                        [,more]]
+                    [,phantom]]]
+            [$\Employee$,map,plural
+                [$\Name$,map,singular]
+                [$\Position$,map,singular]
+                [$\Salary$,map,singular]
+                [$\Department$,map,singular
+                    [$\Name$,map,singular]
+                    [$\Employee$,map,plural
                         [,more]]]
-                [manager,map,optional
+                [$\Manager$,map,optional
                     [,more]]
-                [subordinate,map,plural
+                [$\Subordinate$,map,plural
                     [,more]]]]
     \end{forest}
     \caption{Database schema in unfolded form}

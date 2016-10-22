@@ -1,4 +1,215 @@
 
-\section{Quotients}
+\section{Quotient Classes}
 \label{sec:quotients}
+
+Previously, we demonstrated how to group and aggregate data---so long as the
+structure of the data reflects the hierarchical form of the database.  In this
+section, we show how to overcome this limitation.
+
+In Figure~\ref{fig:unfolded-form}, the schema graph is unfolded into an
+(infinite) tree, shaping the data into a hierarchical form.  A section of this
+hierarchy could be extracted using the $\Select$ combinator.
+
+\begin{example}
+    \label{ex:department-select-name-employee}
+    Show all departments, and, for each department, list the associated
+    employees.
+    \begin{equation*}
+        \Department\Apply\Select(\Name,\; \Employee)
+    \end{equation*}
+\end{example}
+
+What if we ask for \emph{positions} instead of \emph{departments}?
+
+\begin{example}
+    \label{ex:employee-group-position}
+    Show all positions, and, for each position, list the associated employees.
+\end{example}
+
+Unlike the previous example, this query does not match the structure of the
+database and, therefore, cannot be constructed as easily.  Indeed,
+Example~\ref{ex:department-select-name-employee} is built from the primitives
+\begin{alignat*}{3}
+    & \Department && : \Void && \to \Seq{\Dept}, \\
+    & \Name && : \Dept && \to \Text, \\
+    & \Employee && : \Dept && \to \Seq{\Emp}.
+\end{alignat*}
+To construct Example~\ref{ex:employee-group-position} in a similar fashion, we
+need a hypothetical class $\Pos$ of \emph{position} entities and a set of
+queries with the corresponding signatures
+\begin{equation}
+    \label{eq:group-components}
+    \begin{alignedat}{2}
+        & \Void && \to \Seq{\Pos}, \\
+        & \Pos && \to \Text, \\
+        & \Pos && \to \Seq{\Emp}.
+    \end{alignedat} \tag{$\star\star\star$}
+\end{equation}
+However, there is no built-in class of \emph{position} entities and we only
+have the following primitives available:
+\begin{alignat*}{3}
+    & \Employee && : \Void && \to \Seq{\Emp}, \\
+    & \Position && : \Emp && \to \Text.
+\end{alignat*}
+
+To make a ``virtual'' entity class from all distinct values of an attribute and
+inject this class into the database structure, we use the $\Group$ combinator.
+For example (see Figure~\ref{fig:group-combinator}), a list of \emph{all
+distinct employee positions} can be produced with the query
+\begin{equation*}
+    \Employee\Apply\Group(\Position) : \Void \to \Seq{\Pos}.
+\end{equation*}
+The virtual $\Pos$ class comes with the primitives
+\begin{alignat*}{3}
+    & \Position && : \Pos && \to \Text, \\
+    & \Employee && : \Pos && \to \Seq{\Emp},
+\end{alignat*}
+which, \emph{given a position entity, produce respectively the position name
+and a list of associated employees}.
+This gives us all the query components (see~(\ref{eq:group-components}) above)
+needed to complete the example.
+
+\input{figure-group-combinator}
+
+\addtocounter{example}{-1}
+\begin{example}
+    Show all positions, and, for each position, list the associated employees.
+    \begin{align*}
+        & \Employee \\
+        & \Apply\Group(\Position) \\
+        & \Apply\Select(\Position,\; \Employee)
+    \end{align*}
+\end{example}
+
+The query
+\begin{equation*}
+    \Employee\Apply\Group(\Position)
+\end{equation*}
+correlates all distinct values emitted by $\Employee\To\Position$ with the
+respective $\Employee$ entities and packs them together into the records of
+type
+\begin{equation*}
+    \Pos \equiv \Tuple{\Position : \Text,\; \Employee : \Seq{\Emp}}.
+\end{equation*}
+We call $\Pos$ a \emph{quotient class} and denote it by
+\begin{equation*}
+    \Quotient{\Emp}{\Position}.
+\end{equation*}
+
+Once the database hierarchy is rearranged to include the class $\Pos$, we can
+answer any questions about position entities.
+
+\begin{example}
+    \label{ex:employee-group-position-etc}
+    In the Police department, show all positions with the number of employees
+    and the top salary.
+    \begin{alignat*}{2}
+        & \Employee\hidewidth && \\
+        & \Apply\Filter(\Department\To\Name = \textliteral{POLICE})\hspace{-15em}&&\hspace{12em} \\
+        & \Apply\Group(\Position)\hidewidth && \\
+        & \Apply\Select(&& \Position, \\
+        & && \Count(\Employee), \\
+        & && \Max(\Employee\To\Salary))
+    \end{alignat*}
+\end{example}
+
+Here, for each position in the Police department, we determine two calculated
+attributes, the number of employees and the top salary:
+\begin{alignat*}{3}
+    & \Count(\Employee) && : \Quotient{\Emp}{\Position} && \to \Int, \\
+    & \Max(\Employee\To\Salary) && : \Quotient{\Emp}{\Position} && \to \Opt{\Int}.
+\end{alignat*}
+
+\begin{example}
+    \label{ex:nested-group}
+    Arrange employees into a hierarchy: first by position, then by department.
+    \begin{alignat*}{2}
+        & \Employee\hidewidth && \\
+        & \Apply\Group(\Position)\hidewidth && \\
+        & \Apply\Select(&& \Position, \\
+        & && \Employee \\
+        & && \Apply\Group(\Department) \\
+        & && \Apply\Select(\Department\To\Name,\; \Employee))
+    \end{alignat*}
+\end{example}
+
+Nested $\Group$ combinators can construct a hierarchical output of an arbitrary
+form.  In this example, we rebuild the database hierarchy to place positions on
+top, then departments, and then employees.  Notably, the nested $\Group$
+expression has a signature
+\begin{multline*}
+    \Employee\Apply\Group(\Department) : \\
+    \Quotient{\Emp}{\Position} \to \Seq{\Quotient{\Emp}{\Department}}.
+\end{multline*}
+
+\begin{example}
+    \label{ex:unique-department}
+    Show all positions available in more than one department, and, for each
+    position, list the respective departments.
+    \begin{alignat*}{2}
+        & \Employee\hidewidth &&  \\
+        & \Apply\Group(\Position)\hidewidth && \\
+        & \Apply\Define(&& \Department\As \\
+        & && \qquad \Unique(\Employee\To\Department)) \\
+        & \Apply\Filter(\Count(\Department) > 1)\hidewidth && \\
+        & \Apply\Select(\Position,\; \Department\To\Name)\hidewidth &&
+    \end{alignat*}
+\end{example}
+
+This example uses the $\Unique$ combinator to find all distinct values in a
+list of departments.  The $\Unique$ combinator can be expressed via $\Group$ by
+forgetting the plural component of the quotient class.  For example,
+$\Unique(\Employee\To\Department)$ is equivalent to
+\begin{equation*}
+    \Employee\Apply\Group(\Department)\To\Department.
+\end{equation*}
+
+\begin{example}
+    How many employees at each level of the organization chart?
+    \begin{align*}
+        & \Employee \\
+        & \Apply\Group(\Level\As\Count(\Connect(\Manager))) \\
+        & \Apply\Select(\Level,\; \Count(\Employee))
+    \end{align*}
+\end{example}
+
+This example demonstrates that $\Group$ could be applied to a calculated
+attribute such as
+\begin{equation*}
+    \Count(\Connect(\Manager)) : \Emp \to \Int.
+\end{equation*}
+
+The $\Group$ combinator could also be applied to more than one attribute, which
+can be used for summarizing data along several dimensions.  When the summary
+data has to include subtotals and totals, we replace $\Group$ with $\Rollup$.
+
+\begin{example}
+    Show the average salary by department and position, with subtotals for each
+    department and the grand total.
+    \begin{alignat*}{2}
+        & \Employee\hidewidth && \\
+        & \Apply\Rollup(\Department,\; \Position)\hidewidth && \\
+        & \Apply\Select(&& \Department, \\
+        & && \Position, \\
+        & && \Mean(\Employee\To\Salary))
+    \end{alignat*}
+\end{example}
+
+In this example, the query
+\begin{equation*}
+    \Employee\Apply\Rollup(\Department,\; \Position)
+\end{equation*}
+produces a sequence of records
+\begin{equation*}
+    \Tuple{\Department,\;\Position,\;\Employee}
+\end{equation*}
+of type
+\begin{multline*}
+    \Quotient{\Emp}{\Department_{\bot},\Position_{\bot}} \equiv \\
+    \Tuple{\Opt{\Dept},\; \Opt{\Text},\; \Seq{\Emp}}.
+\end{multline*}
+In addition to the records that would be generated by $\Group$, $\Rollup$ emits
+a ``subtotal'' record per each department, with the $\Position$ field set to
+$\bot$, and one ``grand total'' record, with both $\Department$ and $\Position$
+set to $\bot$.
 

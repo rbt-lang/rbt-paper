@@ -65,11 +65,11 @@ Unfortunately, although containers let us represent optional and plural values,
 they do not compose well.  For example, it is tempting to express a query that
 \emph{for a given employee, finds their manager's salary} as a composition
 \begin{equation} \label{eq:manager-to-salary}
-    \Manager\To\Salary,
+    \Manager\To\Salary, \tag{$\star$}
 \end{equation}
 or a query that \emph{shows the names of all departments} as
 \begin{equation} \label{eq:department-to-name}
-    \Department\To\Name.
+    \Department\To\Name. \tag{$\star\star$}
 \end{equation}
 However, if we look at the signatures of the components
 \begin{alignat*}{6}

@@ -1,0 +1,92 @@
+
+\usetikzlibrary{arrows,arrows.meta,positioning,calc,fit}
+
+\tikzset{
+    entity diagram/.style={
+        > = stealth',
+        shorten > = 1pt,
+        node distance = 2cm and 2.5cm,
+        set/.style = {
+            draw, rectangle, thick, font=\sffamily,
+            minimum width=1.5cm, minimum height=.75cm,
+            text height=1.5ex, text depth=.25ex},
+        map/.style = {font=\small\sffamily}
+    }
+}
+
+\tikzset{
+    traverse/.style={
+        ->,
+        > = stealth',
+        shorten < = 2pt,
+        shorten > = 2pt
+    }
+}
+
+\forestset{
+    unfolded database/.style={
+        void/.style = {
+            draw, circle,
+        },
+        map/.style = {
+            draw, rectangle, rounded corners=1mm,
+            minimum width=2cm, minimum height=.5cm,
+            text height=1.5ex, text depth=.25ex,
+            font=\small\sffamily},
+        box/.style = {
+            draw, rectangle, rounded corners=1mm,
+            minimum width=2cm, minimum height=.5cm,
+            font=\small\sffamily},
+        more/.style = {
+            rectangle, minimum height=.5cm,
+            edge path = {
+                \noexpand
+                \path [draw, -] (!u.parent anchor) -- +(0.15cm,0);
+                \noexpand
+                \path [draw, -, densely dotted] (!u.parent anchor) ++(0.15cm,0) -- +(0.15cm,0);
+                \noexpand
+                \path [draw, -] (!u.parent anchor) ++(0.1cm,0) -- +(0,-0.05cm);
+                \noexpand
+                \path [draw, -, densely dotted] (!u.parent anchor) ++(0.1cm,-0.05cm) -- +(0,-0.2cm);
+            },
+            l sep=0
+        },
+        and more/.style = {
+            edge path = {
+                \noexpand
+                \path [\forestoption{edge}] (!u.parent anchor) -- +(0.1cm,0) |- (.child anchor);
+                \noexpand
+                \path [\forestoption{edge}] (!u.parent anchor |- .child anchor) ++(0.1cm,0) -- +(0,-0.05cm);
+                \noexpand
+                \path [draw, -, densely dotted] (!u.parent anchor |- .child anchor) ++(0.1cm,-0.05cm) -- +(0,-0.2cm);
+            }
+        },
+        singular/.style = {
+            edge={-}},
+        optional/.style = {
+            edge={-{Circle[open,length=3.5pt]}}},
+        plural/.style = {
+            edge={-{Straight Barb[reversed,length=3.5pt]}, shorten >=-0.5pt}},
+        selected/.style = { thick, fill=lightgray!25 },
+        selected edge/.style = { edge={thick} },
+        selected tail/.style = {
+            edge path={
+                \noexpand
+                \path [\forestoption{edge}, -] (!u.parent anchor) -- +(0.1cm,0);
+                \noexpand
+                \path [\forestoption{edge}, thick] (!u.parent anchor) +(0.1cm,0) |- (.child anchor);
+            }
+        },
+        for tree = {
+            grow'=0,
+            child anchor=west,
+            parent anchor=east,
+            anchor=west,
+            calign=first,
+            edge path={
+                \noexpand
+                \path [\forestoption{edge}] (!u.parent anchor) -- +(0.1cm,0) |- (.child anchor);
+            },
+        }
+    }
+}
