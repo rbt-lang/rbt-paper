@@ -48,12 +48,12 @@ attributes and relationships form a set of primitive queries.  Composition of
 functions becomes a binary query combinator.  With these considerations, we can
 write our first composite query.
 
-\begin{example}
+\begin{demo}
     Given an employee entity, show the name of their department.
     \begin{equation*}
         \Department\To\Name: \Emp \to \Text
     \end{equation*}
-\end{example}
+\end{demo}
 
 In this example, $\Department\To\Name$ is a query written in Rabbit notation,
 $\Emp \to \Text$ is its signature.  The period $(\To)$ denotes the composition

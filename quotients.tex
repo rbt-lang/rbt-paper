@@ -7,24 +7,24 @@ structure of the data reflects the hierarchical form of the database.  In this
 section, we show how to overcome this limitation.
 
 In Figure~\ref{fig:unfolded-form}, the schema graph is unfolded into an
-(infinite) tree, shaping the data into a hierarchical form.  A section of this
+infinite tree, shaping the data into a hierarchical form.  A section of this
 hierarchy could be extracted using the $\Select$ combinator.
 
-\begin{example}
+\begin{demo}
     \label{ex:department-select-name-employee}
     Show all departments, and, for each department, list the associated
     employees.
     \begin{equation*}
         \Department\Apply\Select(\Name,\; \Employee)
     \end{equation*}
-\end{example}
+\end{demo}
 
 What if we ask for \emph{positions} instead of \emph{departments}?
 
-\begin{example}
+\begin{demo}
     \label{ex:employee-group-position}
     Show all positions, and, for each position, list the associated employees.
-\end{example}
+\end{demo}
 
 Unlike the previous example, this query does not match the structure of the
 database and, therefore, cannot be constructed as easily.  Indeed,
@@ -71,15 +71,15 @@ needed to complete the example.
 
 \input{figure-group-combinator}
 
-\addtocounter{example}{-1}
-\begin{example}
+\addtocounter{demo}{-1}
+\begin{demo}
     Show all positions, and, for each position, list the associated employees.
     \begin{align*}
         & \Employee \\
         & \Apply\Group(\Position) \\
         & \Apply\Select(\Position,\; \Employee)
     \end{align*}
-\end{example}
+\end{demo}
 
 The query
 \begin{equation*}
@@ -99,7 +99,7 @@ We call $\Pos$ a \emph{quotient class} and denote it by
 Once the database hierarchy is rearranged to include the class $\Pos$, we can
 answer any questions about position entities.
 
-\begin{example}
+\begin{demo}
     \label{ex:employee-group-position-etc}
     In the Police department, show all positions with the number of employees
     and the top salary.
@@ -111,7 +111,7 @@ answer any questions about position entities.
         & && \Count(\Employee), \\
         & && \Max(\Employee\To\Salary))
     \end{alignat*}
-\end{example}
+\end{demo}
 
 Here, for each position in the Police department, we determine two calculated
 attributes, the number of employees and the top salary:
@@ -120,7 +120,7 @@ attributes, the number of employees and the top salary:
     & \Max(\Employee\To\Salary) && : \Quotient{\Emp}{\Position} && \to \Opt{\Int}.
 \end{alignat*}
 
-\begin{example}
+\begin{demo}
     \label{ex:nested-group}
     Arrange employees into a hierarchy: first by position, then by department.
     \begin{alignat*}{2}
@@ -131,7 +131,7 @@ attributes, the number of employees and the top salary:
         & && \Apply\Group(\Department) \\
         & && \Apply\Select(\Department\To\Name,\; \Employee))
     \end{alignat*}
-\end{example}
+\end{demo}
 
 Nested $\Group$ combinators can construct a hierarchical output of an arbitrary
 form.  In this example, we rebuild the database hierarchy to place positions on
@@ -142,7 +142,7 @@ expression has a signature
     \Quotient{\Emp}{\Position} \to \Seq{\Quotient{\Emp}{\Department}}.
 \end{multline*}
 
-\begin{example}
+\begin{demo}
     \label{ex:unique-department}
     Show all positions available in more than one department, and, for each
     position, list the respective departments.
@@ -154,7 +154,7 @@ expression has a signature
         & \Apply\Filter(\Count(\Department) > 1)\hidewidth && \\
         & \Apply\Select(\Position,\; \Department\To\Name)\hidewidth &&
     \end{alignat*}
-\end{example}
+\end{demo}
 
 This example uses the $\Unique$ combinator to find all distinct values in a
 list of departments.  The $\Unique$ combinator can be expressed via $\Group$ by
@@ -164,14 +164,15 @@ $\Unique(\Employee\To\Department)$ is equivalent to
     \Employee\Apply\Group(\Department)\To\Department.
 \end{equation*}
 
-\begin{example}
+\begin{demo}
+    \label{ex:employee-group-level}
     How many employees at each level of the organization chart?
     \begin{align*}
         & \Employee \\
         & \Apply\Group(\Level\As\Count(\Connect(\Manager))) \\
         & \Apply\Select(\Level,\; \Count(\Employee))
     \end{align*}
-\end{example}
+\end{demo}
 
 This example demonstrates that $\Group$ could be applied to a calculated
 attribute such as
@@ -183,7 +184,8 @@ The $\Group$ combinator could also be applied to more than one attribute, which
 can be used for summarizing data along several dimensions.  When the summary
 data has to include subtotals and totals, we replace $\Group$ with $\Rollup$.
 
-\begin{example}
+\begin{demo}
+    \label{ex:rollup}
     Show the average salary by department and position, with subtotals for each
     department and the grand total.
     \begin{alignat*}{2}
@@ -193,20 +195,20 @@ data has to include subtotals and totals, we replace $\Group$ with $\Rollup$.
         & && \Position, \\
         & && \Mean(\Employee\To\Salary))
     \end{alignat*}
-\end{example}
+\end{demo}
 
 In this example, the query
 \begin{equation*}
     \Employee\Apply\Rollup(\Department,\; \Position)
 \end{equation*}
-produces a sequence of records
-\begin{equation*}
-    \Tuple{\Department,\;\Position,\;\Employee}
-\end{equation*}
-of type
+produces a sequence of records of type
 \begin{multline*}
     \Quotient{\Emp}{\Department_{\bot},\Position_{\bot}} \equiv \\
-    \Tuple{\Opt{\Dept},\; \Opt{\Text},\; \Seq{\Emp}}.
+    \begin{alignedat}{3}
+        & \Tuple{&& \Department && : \Opt{\Dept}, \\
+        & && \Position && : \Opt{\Text}, \\
+        & && \Employee && : \Seq{\Emp}}.
+    \end{alignedat}
 \end{multline*}
 In addition to the records that would be generated by $\Group$, $\Rollup$ emits
 a ``subtotal'' record per each department, with the $\Position$ field set to

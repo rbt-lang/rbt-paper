@@ -10,13 +10,13 @@ Section~\ref{sec:cardinality} can support a wide range of operations on data.
 By traversing the tree of Figure~\ref{fig:unfolded-form}, we can extract data
 from the database.
 
-\begin{example}
+\begin{demo}
     \label{ex:department-name}
     Show the name of each department.
     \begin{equation*}
         \Department\To\Name
     \end{equation*}
-\end{example}
+\end{demo}
 
 This example is constructed by descending through nodes $\Department$ and
 $\Name$, which represent primitives
@@ -31,13 +31,13 @@ composition is also plural, which gives it a signature
     \Department\To\Name : \Void \to \Seq{\Text}.
 \end{equation*}
 
-\begin{example}
+\begin{demo}
     \label{ex:department-employee-name}
     For each department, show the name of each employee.
     \begin{equation*}
         \Department\To\Employee\To\Name
     \end{equation*}
-\end{example}
+\end{demo}
 
 This example takes a path through
 \begin{alignat*}{3}
@@ -59,47 +59,47 @@ employees within the same department will be coupled together.
 The same collection of names, although not necessarily in the same order, is
 produced by the following example.
 
-\begin{example}
+\begin{demo}
     \label{ex:employee-name}
     Show the name of each employee.
     \begin{equation*}
         \Employee\To\Name
     \end{equation*}
-\end{example}
+\end{demo}
 
 On the other hand, the next example is very different from an apparently
 similar Example~\ref{ex:department-name}.
 
-\begin{example}
+\begin{demo}
     \label{ex:employee-department-name}
     For each employee, show the name of their department.
     \begin{equation*}
         \Employee\To\Department\To\Name
     \end{equation*}
-\end{example}
+\end{demo}
 
 Here, we should see a list of department names, but each name will appear as
 many times as there are employees in the corresponding department.
 
-\begin{example}
+\begin{demo}
     \label{ex:employee-position}
     Show the position of each employee.
     \begin{equation*}
         \Employee\To\Position
     \end{equation*}
-\end{example}
+\end{demo}
 
 Similarly, $\Employee\To\Position$ will output duplicate position titles.  We
 will see how to produce a list of \emph{unique} positions in
 Section~\ref{sec:quotients}.
 
-\begin{example}
+\begin{demo}
     \label{ex:employee}
     Show all employees.
     \begin{equation*}
         \Employee
     \end{equation*}
-\end{example}
+\end{demo}
 
 In this example, the query should emit a sequence of entity objects.  In our
 Rabbit implementation, entity values are not observable directly, so this
@@ -109,13 +109,13 @@ example would instead display a list of records with employee attributes.
 
 Let us see how the extracted data can be summarized.
 
-\begin{example}
+\begin{demo}
     \label{ex:count-department}
     Show the number of all departments.
     \begin{equation*}
         \Count(\Department)
     \end{equation*}
-\end{example}
+\end{demo}
 
 This query produces a single number, so that its signature is
 \begin{equation*}
@@ -152,13 +152,13 @@ combinators are listed in Table~\ref{tab:common-combinators}.
 
 The next example follows the same pattern.
 
-\begin{example}
+\begin{demo}
     \label{ex:max-employee-salary}
     Show the highest salary of all employees.
     \begin{equation*}
         \Max(\Employee\To\Salary)
     \end{equation*}
-\end{example}
+\end{demo}
 
 It extracts the relevant data with
 \begin{equation*}
@@ -171,13 +171,13 @@ and summarizes it using the $\Max$ aggregate
 This query is optional since it produces no output when the database contains
 no employees.
 
-\begin{example}
+\begin{demo}
     \label{ex:department-count-employee}
     Show the number of employees in each department.
     \begin{equation*}
         \Department\To\Count(\Employee)
     \end{equation*}
-\end{example}
+\end{demo}
 
 In this example, we convert a plural relationship, \emph{all employees in the
 given department},
@@ -201,13 +201,13 @@ to get \emph{the number of employees in every department}
 In the next example, this query is further transformed by applying the $\Max$
 aggregate.
 
-\begin{example}
+\begin{demo}
     \label{ex:max-department-count-employee}
     Show the highest number of employees among all departments.
     \begin{equation*}
         \Max(\Department\To\Count(\Employee))
     \end{equation*}
-\end{example}
+\end{demo}
 
 \subsection*{Pipeline Notation}
 
@@ -229,7 +229,7 @@ For example, $\Count(\Department)$ could also be written
 A more sophisticated query written in pipeline notation is shown in the
 following example.
 
-\begin{example}
+\begin{demo}
     \label{ex:top-ten-highest-paid-policemen}
     Show the top 10 highest paid employees in the Police department.
     \begin{align*}
@@ -239,7 +239,7 @@ following example.
         & \Apply\Select(\Name,\; \Position,\; \Salary) \\
         & \Apply\Take(10)
     \end{align*}
-\end{example}
+\end{demo}
 
 Without pipeline notation, this query is much less intelligible:
 \begin{multline*}
@@ -256,13 +256,13 @@ described below.
 Next, we will demonstrate how to produce entities that satisfy a certain
 condition.
 
-\begin{example}
+\begin{demo}
     \label{ex:filter-by-salary}
     Which employees have a salary higher than \$150k?
     \begin{equation*}
         \Employee\Apply\Filter(\Salary>150000)
     \end{equation*}
-\end{example}
+\end{demo}
 
 This query introduces several concepts.
 
@@ -310,7 +310,7 @@ produces the values of $p$ that satisfy condition $q$
 The following example shows how smoothly $\Filter$ combines with other
 combinators.
 
-\begin{example}
+\begin{demo}
     \label{ex:filter-by-size-and-count}
     How many departments have more than 1000 employees?
     \begin{align*}
@@ -318,20 +318,20 @@ combinators.
         & \Apply\Filter(\Count(\Employee)>1000) \\
         & \Apply\Count
     \end{align*}
-\end{example}
+\end{demo}
 
 \subsection*{Sorting and Slicing Data}
 
 The combinator $\Sort$, applied to a plural query, sorts the query output in
 ascending order.
 
-\begin{example}
+\begin{demo}
     \label{ex:sort-department-name}
     Show the names of all departments in alphabetical order.
     \begin{equation*}
         \Sort(\Department\To\Name)
     \end{equation*}
-\end{example}
+\end{demo}
 
 The combinator $\Sort$ is implemented by lifting a sequence function
 \begin{equation*}
@@ -343,13 +343,13 @@ to a query combinator
     & \Sort(p) = a \mapsto \Sort(p(a)).
 \end{align*}
 
-\begin{example}
+\begin{demo}
     \label{ex:sort-employee-by-salary}
     Show all employees ordered by salary.
     \begin{equation*}
         \Employee\Apply\Sort(\Salary)
     \end{equation*}
-\end{example}
+\end{demo}
 
 In this example, a list of employees is sorted by the value of the attribute
 $\Salary$, which is supplied as a second argument to the $\Sort$ combinator.
@@ -358,13 +358,13 @@ In this form, $\Sort$ has a signature
     \Sort : (A \to \Seq{B},\; B \to C) \to (A \to \Seq{B}).
 \end{equation*}
 
-\begin{example}
+\begin{demo}
     \label{ex:sort-employee-by-salary-desc}
     Show all employees ordered by salary, highest paid first.
     \begin{equation*}
         \Employee\Apply\Sort(\Salary\Apply\Desc)
     \end{equation*}
-\end{example}
+\end{demo}
 
 Here, the sort key is wrapped with the combinator $\Desc$ to indicate the
 descending sort order.
@@ -383,7 +383,7 @@ output type and be given a signature
     \Desc : (A \to B) \to (A \to B_{\ge}).
 \end{equation*}
 
-\begin{example}
+\begin{demo}
     \label{ex:sort-employee-by-salary-take-top}
     Who are the top 1\% of highest paid employees?
     \begin{align*}
@@ -391,7 +391,7 @@ output type and be given a signature
         & \Apply\Sort(\Salary\Apply\Desc) \\
         & \Apply\Take(\Count(\Employee)\mathbin \div 100)
     \end{align*}
-\end{example}
+\end{demo}
 
 In this example, only the first 1\% of employees are retained by the combinator
 $\Take$, which has two arguments: a query that produces a sequence of employees
@@ -420,14 +420,14 @@ each department} (see Example~\ref{ex:department-count-employee}):
 However, this query only produces a list of bare numbers---it does not connect
 them to their respective departments.  This is corrected in the following example.
 
-\begin{example}
+\begin{demo}
     \label{ex:department-select-name-size}
     For every department, show its name and the number of employees.
     \begin{equation*}
         \Department
         \Apply\Select(\Name,\;\Size\As\Count(\Employee))
     \end{equation*}
-\end{example}
+\end{demo}
 
 In this example, the combinator $\Select$ takes three arguments: the base query
 \begin{equation*}
@@ -461,7 +461,7 @@ model.
 
 A more complex output structure could be defined with nested $\Select$ combinators.
 
-\begin{example}
+\begin{demo}
     \label{ex:department-select-name-etc}
     For every department, show the top salary and a list of managers with their
     salaries.
@@ -473,7 +473,7 @@ A more complex output structure could be defined with nested $\Select$ combinato
             & && && && \Apply\Filter(\Exists(\Subordinate)) \\
             & && && && \Apply\Select(\Name,\; \Salary))
     \end{alignat*}
-\end{example}
+\end{demo}
 
 In this example, the query output has the type
 \begin{align*}
@@ -494,7 +494,7 @@ a query could be seen as transforming one hierarchical database to another.
 A complex query could often be simplified by replacing duplicate expressions
 with aliases.
 
-\begin{example}
+\begin{demo}
     \label{ex:department-define-size}
     Show the top 3 largest departments and their sizes.
     \begin{align*}
@@ -504,7 +504,7 @@ with aliases.
         & \Apply\Select(\Name,\; \Size) \\
         & \Apply\Take(3)
     \end{align*}
-\end{example}
+\end{demo}
 
 In this example, the alias $\Size$ is created in two steps: first, the query
 \begin{equation*}
@@ -534,13 +534,13 @@ with
     \Manager : \Emp \to \Opt{\Emp}.
 \end{equation*}
 
-\begin{example}
+\begin{demo}
     \label{ex:employee-filter-salary-manager}
     Find all employees whose salary is higher than the salary of their manager.
     \begin{equation*}
         \Employee\Apply\Filter(\Salary>\Manager\To\Salary)
     \end{equation*}
-\end{example}
+\end{demo}
 
 This example uses familiar combinators $\Filter$ and ${>}$ (see
 Example~\ref{ex:filter-by-salary}), but an alert reader will notice the
@@ -582,7 +582,7 @@ with
     \Connect(\Manager) : \Emp \to \Seq{\Emp}.
 \end{equation*}
 
-\begin{example}
+\begin{demo}
     \label{ex:employee-salary-vs-superior}
     How does employees' salary compare to the average of their superiors?
     \begin{alignat*}{2}
@@ -590,7 +590,7 @@ with
         & \Apply\Select(&& \Name, \\
         & && \Salary-\Mean(\Connect(\Manager)\To\Salary))
     \end{alignat*}
-\end{example}
+\end{demo}
 
 The query
 \begin{equation*}
