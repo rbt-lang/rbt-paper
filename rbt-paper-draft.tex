@@ -1,0 +1,33 @@
+\documentclass{sig-alternate-10}
+
+\input{prelude}
+
+\def\sharedaffiliation{\end{tabular}\newline\begin{tabular}{c}}
+
+\begin{document}
+
+\title{Query Combinators}
+
+\numberofauthors{2}
+\author{
+    \alignauthor Clark C. Evans \\ \email{cce@clarkevans.com}
+    \alignauthor Kyrylo Simonov \\ \email{xi@resolvent.net}
+    \sharedaffiliation
+    \affaddr{Prometheus Research, LLC} \\
+}
+
+\maketitle
+
+\input{abstract}
+\input{introduction}
+\input{cardinality}
+\input{combinators}
+\input{quotients}
+\input{context}
+\input{conclusion}
+
+\bibliographystyle{abbrv}
+\bibliography{rbt-paper-draft}
+
+\end{document}
+

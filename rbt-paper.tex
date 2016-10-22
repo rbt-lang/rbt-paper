@@ -1,24 +1,29 @@
-\documentclass{sig-alternate-10}
+\documentclass[9pt,twocolumn]{amsart}
 
 \input{prelude}
 
-\def\sharedaffiliation{\end{tabular}\newline\begin{tabular}{c}}
+\usepackage{geometry}
+\geometry{
+    twoside=true, head=1pc,
+    paperwidth=8.5in, paperheight=11in,
+    includeheadfoot, columnsep=2pc,
+    top=57pt, bottom=73pt, inner=54pt, outer=54pt}
+
+\usepackage[shortlabels]{enumitem}
+\setlist[description]{style=nextline,leftmargin=!}
+\renewcommand{\descriptionlabel}[1]{\upshape\bfseries #1}
 
 \begin{document}
 
 \title{Query Combinators}
 
-\numberofauthors{2}
-\author{
-    \alignauthor Clark C. Evans \\ \email{cce@clarkevans.com}
-    \alignauthor Kyrylo Simonov \\ \email{xi@resolvent.net}
-    \sharedaffiliation
-    \affaddr{Prometheus Research, LLC} \\
-}
+\author{Clark C. Evans}
+\author{Kyrylo Simonov}
+
+\input{abstract}
 
 \maketitle
 
-\input{abstract}
 \input{introduction}
 \input{cardinality}
 \input{combinators}

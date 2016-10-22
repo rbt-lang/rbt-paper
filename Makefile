@@ -1,13 +1,17 @@
-.PHONY: clean
+.PHONY: clean draft preprint
 
 SOURCES = $(wildcard *.tex) $(wildcard *.bib)
 
-rbt-paper.pdf: ${SOURCES}
-	pdflatex rbt-paper
-	bibtex rbt-paper
-	pdflatex rbt-paper
-	pdflatex rbt-paper
+draft: rbt-paper-draft.pdf
+
+preprint: rbt-paper.pdf
+
+%.pdf: ${SOURCES}
+	pdflatex $(basename $@)
+	bibtex $(basename $@)
+	pdflatex $(basename $@)
+	pdflatex $(basename $@)
 
 clean:
-	rm -f *.log *.aux *.bbl *.blg *.pdf
+	rm -f *.log *.aux *.out *.bbl *.blg *.pdf
 
