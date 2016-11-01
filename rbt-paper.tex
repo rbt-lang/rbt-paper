@@ -1,24 +1,35 @@
-\documentclass[9pt,twocolumn]{extproc}
+\documentclass[9pt,twocolumn,article]{memoir}
 
-\usepackage{authblk}
+\setlrmarginsandblock{0.75in}{0.75in}{*}
+\setulmarginsandblock{0.75in}{1in}{*}
+\setcolsepandrule{0.33in}{0in}
+\checkandfixthelayout
+
+\pretitle{\hrule\begin{center}\HUGE\sffamily}
+\posttitle{\par\end{center}\vskip 0.5em}
+\preauthor{\begin{center}\large \lineskip 0.5em\sffamily\begin{tabular}[t]{c}}
+\postauthor{\end{tabular}\end{center}}
+\predate{\begin{center}\sffamily}
+\postdate{\end{center}\hrule\vskip 2em}
+\newcommand{\email}[1]{\normalsize{\texttt{#1}}}
+
+\headstyles{memman}
+\counterwithout{section}{chapter}
 
 \input{prelude}
 
 \begin{document}
 
 \title{Query Combinators}
-
-\author{Clark C. Evans}
-\author{Kyrylo Simonov}
-\affil{Prometheus Research, LLC}
-
-\pagestyle{plain}
-\thispagestyle{empty}
+\author{
+    Clark C. Evans \\ \email{cce@clarkevans.com} \and
+    Kyrylo Simonov \\ \email{xi@resolvent.net} \andnext
+    Prometheus Research, LLC}
+\date{2016}
 
 \maketitle
 
 \input{abstract}
-
 \input{introduction}
 \input{cardinality}
 \input{combinators}
