@@ -1,4 +1,203 @@
 
-\section{Context-aware Queries}
+\section{Query Context}
 \label{sec:context}
+
+In this section, we extend the query model to support \emph{context-aware}
+queries: parameterized queries and queries with running aggregates.
+
+\begin{demo}
+    \label{ex:parameters}
+    Show all employees in the given department $\DEPARTMENT$ with the salary
+    higher than $\SALARY$, where
+    \begin{equation*}
+        \DEPARTMENT=\textliteral{POLICE}, \quad \SALARY=150000.
+    \end{equation*}
+    \begin{align*}
+        & \Employee \\
+        & \Apply\Filter(\Department\To\Name = \DEPARTMENT \mathbin{\&} \Salary > \SALARY) \\
+        & \Apply\Given(\DEPARTMENT \As \textliteral{POLICE},\; \SALARY \As 150000)
+    \end{align*}
+\end{demo}
+
+Practical database queries often depend upon \emph{query parameters}, which, in
+Rabbit, are stored in the query \emph{environment}.  The
+environment is represented by a container, such as
+\begin{equation*}
+    \Env{\DEPARTMENT:\Text,\SALARY:\Int}{A} \equiv \Tuple{A,\; \Tuple{\DEPARTMENT:\Text,\; \SALARY:\Int}},
+\end{equation*}
+that encapsulates both the regular input value and the values of the
+parameters.  The parameters can be extracted from the environment with the
+primitives
+\begin{equation*}
+    \DEPARTMENT : \Env{\DEPARTMENT:\Text}{A} \to \Text, \qquad
+    \SALARY : \Env{\SALARY:\Int}{A} \to \Int.
+\end{equation*}
+
+The query environment is populated using the combinator $\Given$.  In this
+example, the first argument of $\Given$ is a parameterized query
+\begin{multline*}
+    \Employee\Apply\Filter(\Department\To\Name = \DEPARTMENT \mathbin{\&} \Salary > \SALARY) \\
+    : \Env{\DEPARTMENT:\Text,\SALARY:\Int}{\Void} \to \Seq{\Emp}.
+\end{multline*}
+The other two arguments are the constant queries
+\begin{equation*}
+    \textliteral{POLICE} : \Void \to \Text, \qquad
+    150000 : \Void \to \Int
+\end{equation*}
+that specify the values of the parameters.  The combined query does \emph{not}
+depend upon the parameters, and, hence, has a signature
+\begin{equation*}
+    \Void \to \Seq{\Emp}.
+\end{equation*}
+
+In general, $\Given$ takes a parameterized query
+\begin{equation*}
+    p : \Env{x_1:T_1,\ldots,x_n:T_n}{A} \to \Wrap{M}{B},
+\end{equation*}
+$n$ queries that evaluate the parameters
+\begin{equation*}
+    q_1 : A \to T_1,\quad \ldots,\quad q_n : A \to T_n
+\end{equation*}
+and combines them into a context-free query
+\begin{align*}
+    & \Given(p,\; q_1,\; \ldots,\; q_n) : A \to \Wrap{M}{B}, \\
+    & \Given(p,\; q_1,\; \ldots,\; q_n) = a \mapsto p(\Tuple{a, \Tuple{q_1(a), \ldots, q_n(a)}}).
+\end{align*}
+
+\begin{demo}
+    \label{ex:higher-than-average-salary}
+    Which employees have higher than average salary?
+    \begin{align*}
+        & \Employee \\
+        & \Apply\Filter(\Salary > \MEANSALARY) \\
+        & \Apply\Given(\MEANSALARY \As \Mean(\Employee\To\Salary))
+    \end{align*}
+\end{demo}
+
+This example uses a query environment to pass information between different
+scopes.  The parameter $\MEANSALARY$ is calculated in the scope of $\Void$ by
+the query
+\begin{equation*}
+    \Mean(\Employee\To\Salary) : \Void \to \Opt{\Num}
+\end{equation*}
+and is extracted in the scope of $\Emp$ by the primitive
+\begin{equation*}
+    \MEANSALARY : \Env{\MEANSALARY:\Opt{\Num}}{\Emp} \to \Opt{\Num}.
+\end{equation*}
+
+The query environment is one example of a \emph{query context}, a comonadic
+container wrapping the input type.  It could be shown that the environment is
+compatible with query composition (cf.~Section~\ref{sec:cardinality}), which
+permits us to incorporate it into the query model.
+
+Another example of a query context is the \emph{input
+flow}~\cite{Uustalu2006}, a container of every input value seen by the query.
+We denote this context type by $\Rel{A}$ and its values by
+\begin{equation*}
+    [a_1,\;\ldots,\selected{a_j},\;\ldots,\;a_n] : \Rel{A},
+\end{equation*}
+where $a_j$ is the current input value, $a_1,\;\ldots,\;a_{j-1}$ are the values
+seen in the past, and $a_{j+1},\;\ldots,\;a_n$ are the values to be seen in the
+future.  The input flow can be used for an alternative implementation of
+Example~\ref{ex:higher-than-average-salary}.
+
+\begin{demobis}{ex:higher-than-average-salary}
+    Which employees have higher than average salary?
+    \begin{equation*}
+        \Employee\Apply\Filter(\Salary > \Mean(\Around\To\Salary))
+    \end{equation*}
+\end{demobis}
+
+When a query needs to relate each value in a dataset to the dataset as a whole,
+we can use the primitive $\Around$, which materializes its input flow as a
+sequence:
+\begin{multline*}
+    \Around : \Rel{A} \to \Seq{A} \\
+    \shoveleft{\Around = [a_1,\;\ldots,\selected{a_j},\;\ldots,\;a_n]} \\
+    \mapsto [a_1,\;\ldots,\;a_j,\;\ldots,\;a_n].
+\end{multline*}
+In this example, $\Around$ produces, \emph{for a given employee, a list of all
+employees}.  By composing it with $\Salary$, we get, \emph{for a given
+employee, a list of all salaries},
+\begin{equation*}
+    \Around\To\Salary : \Rel{\Emp} \to \Seq{\Int},
+\end{equation*}
+which lets us determine the average salary,
+\begin{equation*}
+    \Mean(\Around\To\Salary) : \Rel{\Emp} \to \Opt{\Num},
+\end{equation*}
+without ever leaving the current scope.
+
+\begin{demo}
+    In the Police department, show employees whose salary is higher than the
+    average for their position.
+    \begin{align*}
+        & \Employee \\
+        & \Apply\Filter(\Department\To\Name=\textliteral{POLICE}) \\
+        & \Apply\Filter(\Salary > \Mean(\Around(\Position)\To\Salary))
+    \end{align*}
+\end{demo}
+
+Here, each employee is matched with other employees having the same position
+using a variant of $\Around$:
+\begin{multline*}
+    \Around : (A \to B) \to (\Rel{A} \to \Seq{A}) \\
+    \shoveleft{\Around(q) = [a_1,\;\ldots,\selected{a_j},\;\ldots,\;a_n]} \\
+    \mapsto [\,a_i \mid q(a_i)=q(a_j)\,].
+\end{multline*}
+Note the use of two separate $\Filter$ combinators.  If we merge them into one,
+$\Around(\Position)$ would list employees with the same position \emph{across
+all departments}.
+
+We can exploit the input flow to calculate running aggregates.
+
+\begin{demo}
+    Show a numbered list of employees and their salaries along with the running
+    total.
+    \begin{alignat*}{3}
+        & \Employee\hidewidth && && \\
+        & \Apply\Select(&& \No && \As \Count(\Before), \\
+        & && \Name,\hidewidth && \\
+        & && \Salary,\hidewidth &&  \\
+        & && \Total && \As \Sum(\Before\To\Salary))
+    \end{alignat*}
+\end{demo}
+
+The primitive $\Before$ exposes its input flow up to and including the current
+input value:
+\begin{align*}
+    & \Before : \Rel{A} \to \Seq{A} \\
+    & \Before = [a_1,\;\ldots,\selected{a_j},\;\ldots,\;a_n] \mapsto [a_1,\;\ldots,\;a_j].
+\end{align*}
+Using $\Before$, we can enumerate the rows in the output
+\begin{equation*}
+    \Count(\Before) : \Rel{\Emp} \to \Int
+\end{equation*}
+as well as calculate the running sum of salaries
+\begin{equation*}
+    \Sum(\Before\To\Salary) : \Rel{\Emp} \to \Int.
+\end{equation*}
+
+\begin{demo}
+    For each department, show employee salaries along with the running total;
+    the total should be reset at the department boundary.
+    \begin{alignat*}{2}
+        & \Department\hidewidth && \\
+        & \Apply\Select(&& \Name, \\
+        & && \Employee \\
+        & && \Apply\Select(\Name,\; \Salary,\; \Sum(\Before\To\Salary)) \\
+        & && \Apply\Frame)
+    \end{alignat*}
+\end{demo}
+
+The input flow propagates through composition, so that a query executed
+within
+\begin{equation*}
+    \Department\To\Employee : \Void \to \Seq{\Emp}
+\end{equation*}
+will see the input flow containing all the employees in all departments.  To
+reset the input flow at a certain boundary, we use the combinator
+\begin{equation*}
+    \Frame : (\Rel{A} \to \Wrap{M}{B}) \to (A \to \Wrap{M}{B}).
+\end{equation*}
 

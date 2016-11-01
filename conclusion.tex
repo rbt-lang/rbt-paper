@@ -2,3 +2,65 @@
 \section{Conclusion and Related Work}
 \label{sec:conclusion}
 
+We designed a combinator-based database query language and, using the
+framework of (bi-)Kleisli arrows \cite{Moggi1991, Uustalu2006}, described its
+denotational semantics.
+
+Specifically, we started with some base category containing entity classes
+\begin{equation*}
+    \Dept,\; \Emp,\; \ldots,
+\end{equation*}
+simple value types
+\begin{equation*}
+    \Void,\; \Bool,\; \Int,\; \Text,\; \ldots,
+\end{equation*}
+and container types
+\begin{equation*}
+    \Tuple{\ldots},\; \Opt{\ldots},\; \Seq{\ldots}, \ldots.
+\end{equation*}
+We bootstrapped the query model by assuming that a query with input of type $A$
+and output of type $B$ can be expressed as an arrow
+\begin{equation*}
+    A \to B.
+\end{equation*}
+To model query cardinality, we wrapped the output type in a monadic container:
+\begin{equation*}
+    A \to \Wrap{M}{B}.
+\end{equation*}
+Query cardinalities form a family
+$\mathcal{M}=\{\,\keyword{1},\;\keyword{Opt},\;\keyword{Seq}\,\}$ of monads
+equipped with a semilattice structure: for any
+for any $M_1, M_2 \in \mathcal{M}$, there exists
+$M_1 \sqcup M_2 \in \mathcal{M}$ with natural injections
+\begin{equation*}
+    \Wrap{M_1}{A} \rightarrow \Wrap{(M_1 \sqcup M_2)}{A} \leftarrow \Wrap{M_2}{A}.
+\end{equation*}
+In order to model query context, we wrapped the input type in a dual structure,
+a comonadic container:
+\begin{equation*}
+    \Wrap{W}{A} \to \Wrap{M}{B}.
+\end{equation*}
+Dually, query context is represented by a semilattice
+$\mathcal{W}=\{\,\keyword{1},\;\keyword{Rel},\;\keyword{Env}_{\Int},\;\ldots\,\}$
+of comonads: for any $W_1, W_2 \in \mathcal{W}$, there exists
+$W_1 \sqcap W_2 \in \mathcal{W}$ with natural projections
+\begin{equation*}
+    \Wrap{W_1}{A} \leftarrow (W_1 \sqcap W_2)\{A\} \rightarrow \Wrap{W_2}{A}.
+\end{equation*}
+Moreover, for any monad $M\in\mathcal{M}$ and comonad $W\in\mathcal{W}$, there
+exists a natural transformation called a distributive law:
+\begin{equation*}
+    W\{M\{A\}\} \to M\{W\{A\}\}.
+\end{equation*}
+Composition of queries
+\begin{equation*}
+    p : W_1\{A\} \to M_1\{B\}, \quad q : W_2\{B\} \to M_2\{C\}
+\end{equation*}
+is a query of the form
+\begin{multline*}
+    p\,\To\,q : W\{A\} \to M\{B\} \\ (W = W_1 \sqcap W_2,\; M = M_1 \sqcup M_2),
+\end{multline*}
+which is constructed using the lattice structures of $\mathcal{M}$ and
+$\mathcal{W}$, compositional properties of monads and comonads, and the
+distributive law for $M$ and $W$.
+

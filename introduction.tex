@@ -38,15 +38,15 @@ and output, for example
     & \Department && : \Emp && \to \Dept, \\
     & \Name && : \Dept && \to \Text.
 \end{alignat*}
-This is known as the functional database model (\cite{Kerschberg1976}).
+This is known as the functional database model \cite{Kerschberg1976}.
 
 \input{figure-sample-schema}
 
 This model provides us with a starting point on our combinator pattern roadmap.
-Any function on an entity set could be seen as a database query.  Then, all the
-attributes and relationships form a set of primitive queries.  Composition of
-functions becomes a binary query combinator.  With these considerations, we can
-write our first composite query.
+Indeed, any function on an entity set could be seen as a database query.  Then,
+all the attributes and relationships form a set of primitive queries.
+Composition of functions becomes a binary query combinator.  With these
+considerations, we can write our first composite query.
 
 \begin{demo}
     Given an employee entity, show the name of their department.
@@ -57,9 +57,9 @@ write our first composite query.
 
 In this example, $\Department\To\Name$ is a query written in Rabbit notation,
 $\Emp \to \Text$ is its signature.  The period $(\To)$ denotes the composition
-combinator, which is a polymorphic binary operator with signature
+combinator, which is a polymorphic binary operator with a signature
 \begin{equation*}
-        -\,\To\,- : (A \to B) \times (B \to C) \to (A \to C).
+        \placeholder\,\To\,\placeholder : (A \to B,\; B \to C) \to (A \to C).
 \end{equation*}
 
 Even though we specified a query model, a set of primitives and one query
@@ -67,7 +67,9 @@ combinator, it doesn't yet feel like a proper query language.  Let us discuss
 what is missing.
 
 First, it is awkward that a query always demands an input.  It means that we
-cannot express an input-free query like \emph{show a list of all departments}.
+cannot express an input-free query like \emph{show a list of all
+departments}.\footnote{We italicize \emph{business questions} that specify
+$\keyword{database}$ $\keyword{queries}$.}
 
 Further, relationships between entities were arbitrarily assigned a direction.
 Indeed, we chose to encode the relationship between departments and employees

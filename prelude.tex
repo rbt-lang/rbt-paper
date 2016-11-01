@@ -3,28 +3,36 @@
 \usepackage{forest}
 \usepackage{framed}
 \usepackage{cancel}
-\usepackage{enumerate}
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{amsfonts}
+\usepackage[shortlabels]{enumitem}
 
 \newtheorem{demo}{Example}[section]
+\newenvironment{demobis}[1]
+    {\renewcommand{\thedemo}{\ref{#1}$'$}\addtocounter{demo}{-1}\begin{demo}}{\end{demo}}
 
-\newcommand{\textliteral}[1]{\textup{\texttt{"#1"}}}
-\newcommand{\keyword}[1]{\textup{\textsf{#1}}}
-\newcommand{\Opt}[1]{\keyword{Opt}\left\{#1\right\}}
-\newcommand{\Seq}[1]{\keyword{Seq}\left\{#1\right\}}
-\newcommand{\Rel}[1]{\keyword{Rel}\left\{#1\right\}}
-\newcommand{\Ctx}[2]{\keyword{Ctx}_{#1}\left\{#2\right\}}
+\newcommand{\placeholder}{{-}}
+\newcommand{\optional}[1]{\ulcorner\!#1\!\!\urcorner}
+\newcommand{\selected}[1]{(\!(#1)\!)}
+\newcommand{\textliteral}[1]{\mathtt{``#1"}}
+\newcommand{\keyword}[1]{\mathsf{#1}}
+\newcommand{\type}[1]{\mathsf{#1}}
+\newcommand{\Wrap}[2]{#1{\left\{#2\right\}}}
+\newcommand{\Opt}[1]{\Wrap{\type{Opt}}{#1}}
+\newcommand{\Seq}[1]{\Wrap{\type{Seq}}{#1}}
+\newcommand{\Rel}[1]{\Wrap{\type{Rel}}{#1}}
+\newcommand{\Env}[2]{\Wrap{\type{Env}_{#1}}{#2}}
 \newcommand{\Tuple}[1]{\langle #1 \rangle}
 \newcommand{\Quotient}[2]{{#1}\Big/\raisebox{-1ex}{\!\small$#2$}}
-\newcommand{\Void}{\keyword{Void}}
-\newcommand{\Dept}{\keyword{Dept}}
-\newcommand{\Emp}{\keyword{Emp}}
-\newcommand{\Pos}{\keyword{Pos}}
-\newcommand{\Text}{\keyword{Text}}
-\newcommand{\Int}{\keyword{Int}}
-\newcommand{\Bool}{\keyword{Bool}}
+\newcommand{\Void}{\type{Void}}
+\newcommand{\Dept}{\type{Dept}}
+\newcommand{\Emp}{\type{Emp}}
+\newcommand{\Pos}{\type{Pos}}
+\newcommand{\Text}{\type{Text}}
+\newcommand{\Int}{\type{Int}}
+\newcommand{\Bool}{\type{Bool}}
+\newcommand{\Num}{\type{Num}}
 \newcommand{\Department}{\keyword{department}}
 \newcommand{\Employee}{\keyword{employee}}
 \newcommand{\Name}{\keyword{name}}
@@ -35,6 +43,7 @@
 \newcommand{\TopSalary}{\keyword{top\_salary}}
 \newcommand{\Level}{\keyword{level}}
 \newcommand{\Null}{\keyword{null}}
+\newcommand{\Home}{\keyword{home}}
 \newcommand{\True}{\keyword{true}}
 \newcommand{\False}{\keyword{false}}
 \newcommand{\Here}{\keyword{here}}
@@ -51,6 +60,8 @@
 \newcommand{\Filter}{\keyword{filter}}
 \newcommand{\Define}{\keyword{define}}
 \newcommand{\Size}{\keyword{size}}
+\newcommand{\Total}{\keyword{total}}
+\newcommand{\No}{\keyword{no}}
 \newcommand{\Sort}{\keyword{sort}}
 \newcommand{\Asc}{\keyword{asc}}
 \newcommand{\Desc}{\keyword{desc}}
@@ -63,9 +74,13 @@
 \newcommand{\Before}{\keyword{before}}
 \newcommand{\Around}{\keyword{around}}
 \newcommand{\Given}{\keyword{given}}
+\newcommand{\Frame}{\keyword{frame}}
 \newcommand{\To}{\boldsymbol{.}}
 \newcommand{\Apply}{\!\boldsymbol{:}\!}
 \newcommand{\As}{\Rightarrow}
+\newcommand{\DEPARTMENT}{\keyword{D}}
+\newcommand{\SALARY}{\keyword{S}}
+\newcommand{\MEANSALARY}{\keyword{MS}}
 
 \usetikzlibrary{arrows,arrows.meta,positioning}
 

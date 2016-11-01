@@ -1,17 +1,8 @@
-\documentclass[9pt,twocolumn]{amsart}
+\documentclass[9pt,twocolumn]{extproc}
+
+\usepackage{authblk}
 
 \input{prelude}
-
-\usepackage{geometry}
-\geometry{
-    twoside=true, head=1pc,
-    paperwidth=8.5in, paperheight=11in,
-    includeheadfoot, columnsep=2pc,
-    top=57pt, bottom=73pt, inner=54pt, outer=54pt}
-
-\usepackage[shortlabels]{enumitem}
-\setlist[description]{style=nextline,leftmargin=!}
-\renewcommand{\descriptionlabel}[1]{\upshape\bfseries #1}
 
 \begin{document}
 
@@ -19,10 +10,14 @@
 
 \author{Clark C. Evans}
 \author{Kyrylo Simonov}
+\affil{Prometheus Research, LLC}
 
-\input{abstract}
+\pagestyle{plain}
+\thispagestyle{empty}
 
 \maketitle
+
+\input{abstract}
 
 \input{introduction}
 \input{cardinality}

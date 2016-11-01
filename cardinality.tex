@@ -34,8 +34,8 @@ of type $A$ and $\Seq{A}$ as a type of finite $A$-valued sequences, that is
     & \Seq{A} && = \{[a_1,\ldots,a_n] \mid a_1,\ldots,a_n:A,\; n=0,1,\ldots \}.
 \end{alignat*}
 
-With these, we can express relationships~(\ref{itm:employee-to-manager})
-and~(\ref{itm:department-to-employee}) as primitives
+With these, we can express relationships~\ref{itm:employee-to-manager}
+and~\ref{itm:department-to-employee} as primitives
 \begin{alignat*}{3}
     & \Manager && : \Emp && \to \Opt{\Emp}, \\
     & \Employee && : \Dept && \to \Seq{\Emp}.
@@ -44,17 +44,17 @@ The container structure over the query output is what we call the query
 cardinality.
 
 We can now guess the output type and cardinality of
-query~(\ref{itm:department-set}).  Indeed, \emph{a list of all departments}
-can only mean $\Seq{\Dept}$.
+query~\ref{itm:department-set}.  Indeed, \emph{a list of all departments} can
+only mean $\Seq{\Dept}$.
 
-To describe the input of query~(\ref{itm:department-set}), we use a
+To describe the input of query~\ref{itm:department-set}, we use a
 \emph{singleton} type
 \begin{equation*}
     \Void = \{\, \top \,\}.
 \end{equation*}
 Type $\Void$ has a unique inhabitant, and because there is no freedom in
 choosing a value of this type, it can designate input that can never affect the
-result of a query.  Thus, we can express~(\ref{itm:department-set}) with a
+result of a query.  Thus, we can express~\ref{itm:department-set} with a
 \emph{class} primitive
 \begin{equation*}
     \Department : \Void \to \Seq{\Dept}
@@ -80,7 +80,7 @@ we see that their intermediate domains do not agree, which means their
 compositions are ill-formed.
 
 To compose functions that carry extra structure with their output, we use
-\emph{monadic composition} (\cite{Moggi1991}).  A mo\-nad is a parametric type
+\emph{monadic composition} \cite{Moggi1991}.  A mo\-nad is a parametric type
 $M\{A\}$ equipped with a generic function $\keyword{pure}_A : A \to M\{A\}$ and
 a monadic composition operator, which must satisfy certain coherence axioms.
 Monadic composition of two functions
@@ -168,7 +168,7 @@ the respective queries are called singular, optional or plural.
 The set of primitives includes class primitives
 \begin{alignat*}{3}
     & \Department && : \Void && \to \Seq{\Dept}, \\
-    & \Employee && : \Void && \to \Seq{\Dept},
+    & \Employee && : \Void && \to \Seq{\Emp},
 \end{alignat*}
 attributes
 \begin{alignat*}{6}

@@ -137,7 +137,7 @@ and, in general,
 \end{equation*}
 In other words, the $\Count$ combinator transforms any sequence-valued query
 to an integer-valued query.  It is implemented by lifting the function that
-returns the length of a sequence
+computes the length of a sequence
 \begin{equation*}
     |-| : \Seq{A} \to \Int
 \end{equation*}
@@ -216,7 +216,7 @@ then shaping it into the desired form with a chain of combinators.  This
 construction is made apparent with the \emph{pipeline notation}.
 
 In pipeline notation, the first argument of a combinator is placed in front of
-it, separated by colon ($\,\Apply\,$)
+it, separated by colon ($\,\Apply\,$):
 \begin{equation*}
     p \Apply F \equiv F(p), \qquad
     p \Apply F(q_1,\ldots,q_n) \equiv F(p,q_1,\ldots,q_n).
@@ -280,11 +280,11 @@ query \emph{for a given employee, show whether their salary is higher than
 \end{equation*}
 The combinator
 \begin{equation*}
-    {>} : (A \to \Int,\; A \to \Int) \to (A \to \Bool)
+    \placeholder>\placeholder : (A \to \Int,\; A \to \Int) \to (A \to \Bool)
 \end{equation*}
 is implemented by lifting the relational operator
 \begin{equation*}
-    {>} : \Int \times \Int \to \Bool
+    \placeholder>\placeholder : (\Int,\; \Int) \to \Bool
 \end{equation*}
 to an operation on queries
 \begin{equation*}
@@ -546,7 +546,7 @@ This example uses familiar combinators $\Filter$ and ${>}$ (see
 Example~\ref{ex:filter-by-salary}), but an alert reader will notice the
 disagreement between the signature of the combinator
 \begin{equation*}
-    {>} : (A \to \Int,\; A \to \Int) \to (A \to \Bool)
+    \placeholder>\placeholder : (A \to \Int,\; A \to \Int) \to (A \to \Bool)
 \end{equation*}
 and the signatures of its arguments
 \begin{alignat*}{3}
@@ -560,7 +560,7 @@ To legitimize this query, we adopt the following rule.  When one argument of a
 scalar combinator has a non-trivial cardinality, this cardinality can be
 promoted to the output of the combinator.  This rule gives ${>}$ a signature
 \begin{equation*}
-    {>} : (A \to \Int,\; A \to M\{\Int\}) \to (A \to M\{\Bool\})
+    \placeholder>\placeholder : (A \to \Int,\; A \to M\{\Int\}) \to (A \to M\{\Bool\})
 \end{equation*}
 or, in this specific case,
 \begin{equation*}
