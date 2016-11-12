@@ -18,8 +18,7 @@ hierarchy could be extracted using the $\Select$ combinator.
         \Department\Apply\Select(\Name,\; \Employee)
     \end{equation*}
 \end{demo}
-
-What if we ask for \emph{positions} instead of \emph{departments}?
+But what if we ask for \emph{positions} instead of \emph{departments}?
 
 \begin{demo}
     \label{ex:employee-group-position}
@@ -85,9 +84,8 @@ The query
 \begin{equation*}
     \Employee\Apply\Group(\Position)
 \end{equation*}
-correlates all distinct values emitted by $\Employee\To\Position$ with the
-respective $\Employee$ entities and packs them together into the records of
-type
+correlates all distinct values emitted by $\Position$ with the respective
+$\Employee$ entities and packs them together into the records of type
 \begin{equation*}
     \Pos \equiv \Tuple{\Position : \Text,\; \Employee : \Seq{\Emp}}.
 \end{equation*}

@@ -1,4 +1,4 @@
-\documentclass{sig-alternate-10}
+\documentclass[draft]{sig-alternate-10}
 
 \input{prelude}
 
@@ -15,6 +15,8 @@
     \sharedaffiliation
     \affaddr{Prometheus Research, LLC} \\
 }
+
+\setlength{\emergencystretch}{3em}
 
 %\begin{CCSXML}
 %<ccs2012>
@@ -43,12 +45,16 @@
 \maketitle
 
 \input{abstract}
+
+\keywords{Combinator, query language, functional database model, Kleisli arrow}
+
 \input{introduction}
 \input{cardinality}
 \input{combinators}
 \input{quotients}
 \input{context}
 \input{conclusion}
+\input{acknowledgements}
 
 \bibliographystyle{abbrv}
 \bibliography{rbt-paper-draft}

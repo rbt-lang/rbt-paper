@@ -3,7 +3,7 @@
 \label{sec:context}
 
 In this section, we extend the query model to support \emph{context-aware}
-queries: parameterized queries and queries with running aggregates.
+queries: parameterized queries and queries with window functions.
 
 \begin{demo}
     \label{ex:parameters}
@@ -36,8 +36,9 @@ primitives
 The query environment is populated using the combinator $\Given$.  In this
 example, the first argument of $\Given$ is a parameterized query
 \begin{multline*}
-    \Employee\Apply\Filter(\Department\To\Name = \DEPARTMENT \mathbin{\&} \Salary > \SALARY) \\
-    : \Env{\DEPARTMENT:\Text,\SALARY:\Int}{\Void} \to \Seq{\Emp}.
+    \Employee \\
+    \shoveleft{\Apply\Filter(\Department\To\Name = \DEPARTMENT \mathbin{\&} \Salary > \SALARY) : } \\
+    \Env{\DEPARTMENT:\Text,\SALARY:\Int}{\Void} \to \Seq{\Emp}.
 \end{multline*}
 The other two arguments are the constant queries
 \begin{equation*}
@@ -74,7 +75,7 @@ and combines them into a context-free query
     \end{align*}
 \end{demo}
 
-This example uses a query environment to pass information between different
+This example uses the query environment to pass information between different
 scopes.  The parameter $\MEANSALARY$ is calculated in the scope of $\Void$ by
 the query
 \begin{equation*}
@@ -86,13 +87,13 @@ and is extracted in the scope of $\Emp$ by the primitive
 \end{equation*}
 
 The query environment is one example of a \emph{query context}, a comonadic
-container wrapping the input type.  It could be shown that the environment is
+container wrapping the query input.  It could be shown that the environment is
 compatible with query composition (cf.~Section~\ref{sec:cardinality}), which
 permits us to incorporate it into the query model.
 
-Another example of a query context is the \emph{input
-flow}~\cite{Uustalu2006}, a container of every input value seen by the query.
-We denote this context type by $\Rel{A}$ and its values by
+Another example of a query context is the \emph{input flow}, a container of
+every input value seen by the query.  We denote this context type by $\Rel{A}$
+and its values by
 \begin{equation*}
     [a_1,\;\ldots,\selected{a_j},\;\ldots,\;a_n] : \Rel{A},
 \end{equation*}
@@ -109,8 +110,8 @@ Example~\ref{ex:higher-than-average-salary}.
 \end{demobis}
 
 When a query needs to relate each value in a dataset to the dataset as a whole,
-we can use the primitive $\Around$, which materializes its input flow as a
-sequence:
+we can use the plural primitive $\Around$, which materializes its input flow as
+a sequence:
 \begin{multline*}
     \Around : \Rel{A} \to \Seq{A} \\
     \shoveleft{\Around = [a_1,\;\ldots,\selected{a_j},\;\ldots,\;a_n]} \\
@@ -118,13 +119,13 @@ sequence:
 \end{multline*}
 In this example, $\Around$ produces, \emph{for a given employee, a list of all
 employees}.  By composing it with $\Salary$, we get, \emph{for a given
-employee, a list of all salaries},
+employee, a list of all salaries}
 \begin{equation*}
     \Around\To\Salary : \Rel{\Emp} \to \Seq{\Int},
 \end{equation*}
-which lets us determine the average salary,
+which lets us determine the average salary
 \begin{equation*}
-    \Mean(\Around\To\Salary) : \Rel{\Emp} \to \Opt{\Num},
+    \Mean(\Around\To\Salary) : \Rel{\Emp} \to \Opt{\Num}
 \end{equation*}
 without ever leaving the current scope.
 

@@ -2,20 +2,20 @@
 \section{Query Cardinality}
 \label{sec:cardinality}
 
-In Section~\ref{sec:introduction}, we suggested that any function defined on an
-entity set can be seen as a query.  However, this naive model failed to
-represent optional and plural relationships as well as queries lacking apparent
-input.  In this section, we resolve these issues by introducing the notion of
+In Section~\ref{sec:introduction}, we suggested that a database query could be
+modeled as a function.  However, this na\"{\i}ve model failed to represent
+optional and plural relationships as well as queries lacking apparent input.
+In this section, we resolve these issues by introducing the notion of
 \emph{query cardinality}.
 
 We found it difficult to model these two relationships:
 
 \begin{enumerate}[(i)]
 \item \label{itm:employee-to-manager}
-\emph{An employee may report to another employee, the manager.}
+\emph{An employee may have a manager.}
 
 \item \label{itm:department-to-employee}
-\emph{Any department has a number of associated employees.}
+\emph{A department is staffed by a number of employees.}
 \end{enumerate}
 
 We were also puzzled on how to express input-free queries such as:
@@ -26,48 +26,44 @@ We were also puzzled on how to express input-free queries such as:
 \emph{Show a list of all departments.}
 \end{enumerate}
 
-In programming practice, optional and plural values are stored using container
-types.  So let us define two parametric types: $\Opt{A}$ as a zero or one value
-of type $A$ and $\Seq{A}$ as a type of finite $A$-valued sequences, that is
-\begin{alignat*}{2}
-    & \Opt{A} && = \{\, \bot \,\} + A, \\
-    & \Seq{A} && = \{[a_1,\ldots,a_n] \mid a_1,\ldots,a_n:A,\; n=0,1,\ldots \}.
-\end{alignat*}
-
-With these, we can express relationships~\ref{itm:employee-to-manager}
-and~\ref{itm:department-to-employee} as primitives
+We could attempt to represent optional and plural output values as instances of
+the container types
+\begin{equation*}
+    \Opt{A} \quad \text{and} \quad \Seq{A},
+\end{equation*}
+where the \emph{option} container $\Opt{A}$ holds zero or one value of type
+$A$, and the \emph{sequence} container $\Seq{A}$ holds an ordered list of
+values of type~$A$.  Using these containers,
+relationships~\ref{itm:employee-to-manager}
+and~\ref{itm:department-to-employee} could be expressed as primitive queries
+with signatures
 \begin{alignat*}{3}
     & \Manager && : \Emp && \to \Opt{\Emp}, \\
     & \Employee && : \Dept && \to \Seq{\Emp}.
 \end{alignat*}
-The container structure over the query output is what we call the query
-cardinality.
-
-We can now guess the output type and cardinality of
-query~\ref{itm:department-set}.  Indeed, \emph{a list of all departments} can
-only mean $\Seq{\Dept}$.
+Moreover, we could guess the output of query~\ref{itm:department-set}.  Indeed,
+\emph{a list of all departments} can only mean $\Seq{\Dept}$.
 
 To describe the input of query~\ref{itm:department-set}, we use a
 \emph{singleton} type
 \begin{equation*}
-    \Void = \{\, \top \,\}.
+    \Void.
 \end{equation*}
-Type $\Void$ has a unique inhabitant, and because there is no freedom in
-choosing a value of this type, it can designate input that can never affect the
-result of a query.  Thus, we can express~\ref{itm:department-set} with a
-\emph{class} primitive
+The type $\Void$ has a unique inhabitant ($\top:\Void$), and because there is no
+freedom in choosing a value of this type, it can designate input that can never
+affect the result of a query.  Thus, we can express~\ref{itm:department-set} as
+a \emph{class} primitive
 \begin{equation*}
-    \Department : \Void \to \Seq{\Dept}
+    \Department : \Void \to \Seq{\Dept}.
 \end{equation*}
-that produces all department entities.
 
-Unfortunately, although containers let us represent optional and plural values,
-they do not compose well.  For example, it is tempting to express a query that
-\emph{for a given employee, finds their manager's salary} as a composition
+Unfortunately, although containers let us represent optional and plural output,
+they do not compose well.  For example, it is tempting to express \emph{for a
+given employee, find their manager's salary} as a composition
 \begin{equation} \label{eq:manager-to-salary}
     \Manager\To\Salary, \tag{$\star$}
 \end{equation}
-or a query that \emph{shows the names of all departments} as
+or \emph{show the names of all departments} as
 \begin{equation} \label{eq:department-to-name}
     \Department\To\Name. \tag{$\star\star$}
 \end{equation}
@@ -79,93 +75,105 @@ However, if we look at the signatures of the components
 we see that their intermediate domains do not agree, which means their
 compositions are ill-formed.
 
-To compose functions that carry extra structure with their output, we use
-\emph{monadic composition} \cite{Moggi1991}.  A mo\-nad is a parametric type
-$M\{A\}$ equipped with a generic function $\keyword{pure}_A : A \to M\{A\}$ and
-a monadic composition operator, which must satisfy certain coherence axioms.
-Monadic composition of two functions
-\begin{equation*}
-    p : A \to M\{B\}, \qquad q : B \to M\{C\},
-\end{equation*}
-gives a function $p\,\To\,q$ with a signature of the same shape
-\begin{equation*}
-    p\,\To\,q : A \to M\{C\}.
-\end{equation*}
+To make the queries compose again, we need to distinguish between the output
+type of a query and its cardinality.  For example, we should say that
+query~\ref{itm:employee-to-manager} is an optional query from $\Emp$ to $\Emp$,
+\ref{itm:department-to-employee} is a plural query from $\Dept$ to $\Emp$, and
+\ref{itm:department-set} is a plural query from $\Void$ to $\Dept$.  Then, any
+two queries should compose, regardless of their cardinalities, so long as they
+have compatible intermediate types; furthermore, the least upper bound of their
+cardinalities is the cardinality of their composition.
 
-Both $\Opt{A}$ and $\Seq{A}$ are known to be monads.  Let us confirm that they
-admit monadic composition.
-
-Monadic composition of
+Specifically, given two queries
 \begin{equation*}
-    p : A \to \Opt{B}, \qquad q : B \to \Opt{C}
+    p : A \to \Wrap{M_1}{B}, \qquad q : B \to \Wrap{M_2}{C}
 \end{equation*}
-is just a composition of partial functions
+we first promote their output to a common cardinality
 \begin{equation*}
-    p\,\To\,q : a \longmapsto \begin{cases}
-        \bot & (p(a)=\bot\text{ or }q(p(a))=\bot), \\
-        q(p(a)) & (\text{otherwise}).
-    \end{cases}
+    M = M_1 \sqcup M_2,
 \end{equation*}
-
-To compose two sequence-valued functions
+and then use the \emph{monadic composition} combinator
 \begin{equation*}
-    p : A \to \Seq{B}, \qquad q : B \to \Seq{C},
+    \placeholder\,\To\,\placeholder : (A \to \Wrap{M}{B},\; B \to \Wrap{M}{C}) \to (A \to \Wrap{M}{C})
 \end{equation*}
-we first evaluate $p$ on the input $a$ of type $A$
+to construct their composition
 \begin{equation*}
-    a \overset{p}{\longmapsto} [b_1, b_2, \ldots],
+    p\,\To\,q : A \to \Wrap{M}{C}.
 \end{equation*}
-then apply $q$ to every element of $p(a)$
-\begin{equation*}
-    [b_1, b_2, \ldots]
-    \overset{[q]}{\longmapsto}
-    [[c^{1}_{1}, c^{1}_{2}, \ldots], [c^{2}_{1}, c^{2}_{2}, \ldots], \ldots],
-\end{equation*}
-and finally flatten the nested sequences
-\begin{equation*}
-    [[c^{1}_{1}, c^{1}_{2}, \ldots], [c^{2}_{1}, c^{2}_{2}, \ldots], \ldots]
-    \overset{\cancel{\,[\;]\,}}{\longmapsto}
-    [c^{1}_{1}, c^{1}_{2}, \ldots, c^{2}_{1}, c^{2}_{2}, \ldots].
-\end{equation*}
-The result is the value $(p\,\To\,q)(a)$ of type $\Seq{C}$.
-
-Monadic (and regular) composition rules give us a way to compose queries of the
-same cardinality.  To compose queries with mixed cardinalities, we promote
-their output to a smallest common monadic container using a chain of natural
-embeddings
-\begin{equation*}
-    A \hookrightarrow \Opt{A} \hookrightarrow \Seq{A}.
-\end{equation*}
-These embeddings are defined by
-\begin{alignat*}{5}
-    & \; && \bot && : \Opt{A} && \longmapsto [\;] && : \Seq{A}, \\
-    & a : A \longmapsto\ && a && : \Opt{A} && \longmapsto [a] && : \Seq{A}.
-\end{alignat*}
-
-We can now state the query composition rule as follows: find the largest
-cardinality of the components; lift the output of all components to this
-cardinality; use monadic composition.  For example, this rule gives queries
-(\ref{eq:manager-to-salary}) and (\ref{eq:department-to-name}) signatures
+Using this rule, we can justify the queries (\ref{eq:manager-to-salary}) and
+(\ref{eq:department-to-name}) and give them signatures
 \begin{alignat*}{3}
     & \Manager\To\Salary && : \Emp && \to \Opt{\Int}, \\
     & \Department\To\Name && : \Void && \to \Seq{\Text}.
 \end{alignat*}
 
-We are finally ready to present the design of a combina\-tor-based query
-language.
+Let us work out the details.  Query cardinalities are ordered with respect to
+inclusions
+\begin{equation*}
+    A \sqsubseteq \Opt{A} \sqsubseteq \Seq{A},
+\end{equation*}
+which, using the notation for container instances
+\begin{equation*}
+    \bot,\; \optional{a} : \Opt{A}, \qquad [a_1,\ldots,a_n] : \Seq{A},
+\end{equation*}
+are defined by
+\begin{alignat*}{5}
+    & \; && \bot && : \Opt{A} && \longmapsto [\;] && : \Seq{A}, \\
+    & a : A \longmapsto\ && \optional{a} && : \Opt{A} && \longmapsto [a] && : \Seq{A}.
+\end{alignat*}
+This order lets us, whenever nessesary, promote any query $A\to\Wrap{M}{B}$ to
+a query $A\to\Wrap{M'}{B}$ with a greater cardinality $M' \sqsupseteq M$.
+
+Monadic composition for the option and sequence containers is well known.  For
+optional queries
+\begin{equation*}
+    p : A \to \Opt{B}, \qquad q : B \to \Opt{C},
+\end{equation*}
+it is defined by
+\begin{align*}
+    & p\,\To\,q : A \to \Opt{C}, \\
+    & p\,\To\,q : a \mapsto \begin{cases}
+        \optional{c} & (p(a)=\optional{\,b},\; q(b)=\optional{c}), \\
+        \bot & (\text{otherwise}).
+    \end{cases}
+\end{align*}
+For plural queries
+\begin{equation*}
+    p : A \to \Seq{B}, \qquad q : B \to \Seq{C},
+\end{equation*}
+the sequence $(p\,\To\,q)(a)$ is calculated by applying $p$ to $a$
+\begin{equation*}
+    a \overset{p}{\longmapsto} [b_1, b_2, \ldots],
+\end{equation*}
+then applying $q$ to every element of $p(a)$
+\begin{equation*}
+    [b_1, b_2, \ldots]
+    \overset{[q]}{\longmapsto}
+    [[c^{1}_{1}, c^{2}_{1}, \ldots], [c^{1}_{2}, c^{2}_{2}, \ldots], \ldots],
+\end{equation*}
+and finally merging the nested sequences
+\begin{equation*}
+    [[c^{1}_{1}, c^{2}_{1}, \ldots], [c^{1}_{2}, c^{2}_{2}, \ldots], \ldots]
+    \overset{\cancel{\,[\;]\,}}{\longmapsto}
+    [c^{1}_{1}, c^{2}_{1}, \ldots, c^{1}_{2}, c^{2}_{2}, \ldots].
+\end{equation*}
+
+We are now ready to present the design of a combina\-tor-based query language.
+
+\input{figure-folded-form}
 
 \begin{description}
 \item[Query model:]
-A database query is a function of the form
+A database query is characterized by its input type $A$, its output type $B$
+and its cardinality $M$, and can be represented as a function of the form
 \begin{equation*}
-    p : A \to M\{B\}.
+    p : A \to M\{B\},
 \end{equation*}
-We call $A$ its input type, $B$ its output type, and $M$ its monadic
-cardinality.  $M\{B\}$ could be one of $B$, $\Opt{B}$ or $\Seq{B}$ and
-the respective queries are called singular, optional or plural.
+where $M\{B\}$ is one of $B$, $\Opt{B}$ or $\Seq{B}$; the respective queries
+are called singular, optional or plural.
 
 \item[Primitives:]
-The set of primitives includes class primitives
+The set of primitives includes classes
 \begin{alignat*}{3}
     & \Department && : \Void && \to \Seq{\Dept}, \\
     & \Employee && : \Void && \to \Seq{\Emp},
@@ -184,40 +192,31 @@ and relationships
     & \Manager && : \Emp && \to \Opt{\Emp}, \\
     & \Subordinate && : \Emp && \to \Seq{\Emp}.
 \end{alignat*}
-Note that we allow multiple primitives to share the same name as long as they
-are not defined with the same input type.
+Note that a name can be shared by multiple primitives as long as they have
+different input types.
 
 \item[Combinators:]
-Binary composition combinator takes two queries
+The composition combinator sends two queries
 \begin{equation*}
     p : A \to M_1\{B\}, \qquad
     q : B \to M_2\{C\}
 \end{equation*}
-and produces a query of the form
+to their composition
 \begin{equation*}
-    p\,\To\,q : A \to M\{C\}.
+    p\,\To\,q : A \to M\{C\} \qquad (M = M_1 \sqcup M_2).
 \end{equation*}
-Here, $M = M_1 \sqcup M_2$ is the smallest common cardinality of $M_1$ and
-$M_2$.
 
-More combinators will be described in the next sections.
+More combinators are described in the following sections.
 \end{description}
 
-This design suggests a new way to visually represent the structure of the
-database.  Recall that we started with the schema graph in
-Figure~\ref{fig:sample-schema}, which gave us the original, incomplete set of
-primitives.  To reflect the primitives that were defined afterwards, we should
-add the $\Void$ node and the missing arcs (see Figure~\ref{fig:folded-form}).
-In this updated graph, any path corresponds to a composable chain of
-primitives.
-
-Furthermore, we can transform the schema graph into an (infinite) tree by
-unfolding it starting from the $\Void$ node (see
-Figure~\ref{fig:unfolded-form}).  In this form, each node corresponds to some
-composition of primitives.  Figure~\ref{fig:unfolded-form} presents the
-structure of the database in the hierarchical database model.
-
-\input{figure-folded-form}
-
 \input{figure-unfolded-form}
+
+Recall that we started with the schema graph in
+Figure~\ref{fig:sample-schema}, which gave us the original, incomplete set of
+primitives.  To reflect the remaining primitives, we should add the $\Void$
+node and the missing arcs (see Figure~\ref{fig:folded-form}).
+Furthermore, we will transform the schema graph into an (infinite) tree by
+unfolding it starting from the $\Void$ node (see
+Figure~\ref{fig:unfolded-form}).   The unfolded form could be seen as the
+database schema realized in the hierarchical data\-base model.
 

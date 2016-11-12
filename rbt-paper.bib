@@ -1,37 +1,395 @@
 
-@techreport{Kerschberg1976,
-  doi = {10.13140/RG.2.1.3396.5920},
-  url = {https://doi.org/10.13140/RG.2.1.3396.5920},
-  title = {A Functional Data Base Model},
-  author = {Larry Kerschberg and Joao E.S. Pacheco},
-  series = {Monographs in Computer Science and Computer Applications},
-  number = {2/1976},
-  publisher = {Departamento de Informatica, Pontificia Universidade Catolica},
-  address = {Rio de Janeiro, Brazil},
-  year = {1976}
+% Combinatory logic
+
+@article{Schoenfinkel1924,
+    author  = {Moses Sch{\"o}nfinkel},
+    title   = {{\"U}ber die {B}austeine der mathematischen {L}ogik},
+    journal = {Mathematische Annalen},
+    volume  = {92},
+    number  = {3},
+    pages   = {305--316},
+    year    = {1924},
+    doi     = {10.1007/BF01448013},
 }
+
+@article{Curry1930,
+    author  = {Haskell B. Curry},
+    title   = {Grundlagen der {K}ombinatorischen {L}ogik},
+    journal = {American Journal of Mathematics},
+    volume  = {52},
+    number  = {3},
+    pages   = {509--536},
+    year    = {1930},
+    doi     = {10.2307/2370619},
+}
+
+% Parser combinators
+
+@book{Burge1975,
+    author  = {William H. Burge},
+    title   = {Recursive Programming Techniques},
+    publisher = {Addison-Wesley},
+    year    = {1975},
+    url     = {https://books.google.com/books?id=81kZAQAAIAAJ},
+}
+
+@inproceedings{Wadler1985,
+    author  = {Philip Wadler},
+    title   = {How to Replace Failure by a List of Successes: {A} method for exception handling, backtracking, and pattern matching in lazy functional languages},
+    booktitle = {Functional Programming Languages and Computer Architecture, {FPCA} 1985, Nancy, France, September 16-19, 1985, Proceedings},
+    pages   = {113--128},
+    year    = {1985},
+    doi     = {10.1007/3-540-15975-4_33},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/conf/fpca/Wadler85},
+}
+
+@article{Hutton1992,
+    author  = {Graham Hutton},
+    title   = {Higher-Order Functions for Parsing},
+    journal = {Journal of Functional Programming},
+    volume  = {2},
+    number  = {3},
+    pages   = {323--343},
+    year    = {1992},
+    doi     = {10.1017/S0956796800000411},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/journals/jfp/Hutton92},
+}
+
+@inproceedings{Fokker1995,
+    author  = {Jeroen Fokker},
+    title   = {Functional Parsers},
+    booktitle = {Advanced Functional Programming, First International Spring School on Advanced Functional Programming Techniques, B{\aa}stad, Sweden, May 24-30, 1995, Tutorial Text},
+    pages   = {1--23},
+    year    = {1995},
+    doi     = {10.1007/3-540-59451-5_1},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/conf/afp/Fokker95},
+}
+
+@techreport{Hutton1996,
+    author  = {Graham Hutton and Erik Meijer},
+    title   = {Monadic parser combinators},
+    number  = {NOTTCS-TR-96-4},
+    institution = {School of Computer Science and IT, University of Nottingham},
+    year    = {1996},
+    url     = {http://eprints.nottingham.ac.uk/237/},
+}
+
+% Other examples of combinator DSLs
+
+@inproceedings{Elliott1997,
+    author  = {Conal Elliott and Paul Hudak},
+    title   = {Functional Reactive Animation},
+    booktitle = {Proceedings of the 1997 {ACM} {SIGPLAN} International Conference on Functional Programming ({ICFP} '97), Amsterdam, The Netherlands, June 9-11, 1997.},
+    pages   = {263--273},
+    year    = {1997},
+    doi     = {10.1145/258948.258973},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/conf/icfp/ElliottH97},
+}
+
+@inproceedings{Jones2000,
+    author  = {Simon L. Peyton Jones and Jean{-}Marc Eber and Julian Seward},
+    title   = {Composing contracts: an adventure in financial engineering},
+    booktitle = {Proceedings of the Fifth {ACM} {SIGPLAN} International Conference on Functional Programming ({ICFP} '00), Montreal, Canada, September 18-21, 2000.},
+    pages   = {280--292},
+    year    = {2000},
+    doi     = {10.1145/351240.351267},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/conf/icfp/JonesES00},
+}
+
+% Combinators and databases
+
+@article{Backus1978,
+    author  = {John W. Backus},
+    title   = {Can Programming Be Liberated From the von {N}eumann Style? {A} Functional Style and its Algebra of Programs},
+    journal = {Communications of the {ACM}},
+    volume  = {21},
+    number  = {8},
+    pages   = {613--641},
+    year    = {1978},
+    doi     = {10.1145/359576.359579},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/journals/cacm/Backus78},
+}
+
+@article{Bossi1984,
+    author  = {Annalisa Bossi and Carlo Ghezzi},
+    title   = {Using {FP} As a Query Language for Relational Data-Bases},
+    journal = {Computer Languages},
+    volume  = {9},
+    number  = {1},
+    pages   = {25--37},
+    year    = {1984},
+    doi     = {10.1016/0096-0551(84)90010-9},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/journals/cl/BossiG84},
+}
+
+@inproceedings{Erwig1991,
+    author  = {Martin Erwig and Udo W. Lipeck},
+    title   = {A Functional {DBPL} Revealing High Level Optimizations},
+    booktitle = {Database Programming Languages: Bulk Types and Persistent Data. 3rd International Workshop, August 27-30, 1991, Nafplion, Greece, Proceedings},
+    pages   = {306--321},
+    year    = {1991},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/conf/dbpl/ErwigL91},
+}
+
+@inproceedings{Cherniack1996,
+    author  = {Mitch Cherniack and Stanley B. Zdonik},
+    title   = {Rule Languages and Internal Algebras for Rule-Based Optimizers},
+    booktitle = {Proceedings of the 1996 {ACM} {SIGMOD} International Conference on Management of Data, Montreal, Quebec, Canada, June 4-6, 1996.},
+    pages   = {401--412},
+    year    = {1996},
+    doi     = {10.1145/233269.233356},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/conf/sigmod/CherniackZ96},
+}
+
+@inproceedings{Foster2005,
+    author  = {J. Nathan Foster and Michael B. Greenwald and Jonathan T. Moore and Benjamin C. Pierce and Alan Schmitt},
+    title   = {Combinators for bi-directional tree transformations: a linguistic approach to the view update problem},
+    booktitle = {Proceedings of the 32nd {ACM} {SIGPLAN-SIGACT} Symposium on Principles of Programming Languages, {POPL} 2005, Long Beach, California, USA, January 12-14, 2005},
+    pages   = {233--246},
+    year    = {2005},
+    doi     = {10.1145/1040305.1040325},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/conf/popl/FosterGMPS05},
+}
+
+% Functional database model
+
+@techreport{Kerschberg1976,
+    author  = {Larry Kerschberg and Joao E. S. Pacheco},
+    title   = {A Functional Data Base Model},
+    number  = {2/1976},
+    institution = {Departamento de Informatica, Pontificia Universidade Catolica},
+    address = {Rio de Janeiro, Brazil},
+    year    = {1976},
+    doi     = {10.13140/RG.2.1.3396.5920}
+}
+
+@inproceedings{Sibley1977,
+    author  = {Edgar H. Sibley and Larry Kerschberg},
+    title   = {Data architecture and data model considerations},
+    booktitle = {American Federation of Information Processing Societies: 1977 National Computer Conference, June 13-16, 1977, Dallas, Texas, {USA}},
+    pages   = {85--96},
+    year    = {1977},
+    doi     = {10.1145/1499402.1499422},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/conf/afips/SibleyK77},
+}
+
+% Functional query languages
+
+@inproceedings{Buneman1979,
+    author  = {Peter Buneman and Robert E. Frankel},
+    title   = {{FQL} - {A} Functional Query Language},
+    booktitle = {Proceedings of the 1979 {ACM} {SIGMOD} International Conference on Management of Data, Boston, Massachusetts, May 30 - June 1.},
+    pages   = {52--58},
+    year    = {1979},
+    doi     = {10.1145/582095.582104},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/conf/sigmod/BunemanF79},
+}
+
+@article{Shipman1981,
+    author  = {David W. Shipman},
+    title   = {The Functional Data Model and the Data Language {DAPLEX}},
+    journal = {{ACM} Transactions on Database Systems},
+    volume  = {6},
+    number  = {1},
+    pages   = {140--173},
+    year    = {1981},
+    doi     = {10.1145/319540.319561},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/journals/tods/Shipman81},
+}
+
+@article{Batory1988,
+    author  = {Don S. Batory and T. Y. Leung and T. E. Wise},
+    title   = {Implementation Concepts for an Extensible Data Model and Data Language},
+    journal = {{ACM} Transactions on Database Systems},
+    volume  = {13},
+    number  = {3},
+    pages   = {231--262},
+    year    = {1988},
+    doi     = {10.1145/44498.45062},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/journals/tods/BatoryLW88},
+}
+
+@incollection{Gray2004,
+    author  = {Peter M. D. Gray and Peter J. H. King and Alexandra Poulovassilis},
+    title   = {Introduction to the Use of Functions in the Management of Data},
+    booktitle = {The Functional Approach to Data Management: Modeling, Analyzing and Integrating Heterogeneous Data},
+    pages   = {1--54},
+    editor  = {Peter M. D. Gray and Larry Kerschberg and Peter J. H. King and Alexandra Poulovassilis},
+    year    = {2004},
+    publisher = {Springer},
+    address = {Berlin, Heidelberg},
+    doi     = {10.1007/978-3-662-05372-0_1},
+}
+
+% Monadic comprehension
+
+@inproceedings{Trinder1989,
+    author  = {P. Trinder and P. Wadler},
+    title   = {Improving list comprehension database queries},
+    booktitle = {TENCON '89. Fourth IEEE Region 10 International Conference},
+    pages   = {186-192},
+    year    = {1989},
+    doi     = {10.1109/TENCON.1989.176921},
+}
+
+@article{Buneman1994,
+    author  = {Peter Buneman and Leonid Libkin and Dan Suciu and Val Tannen and Limsoon Wong},
+    title   = {Comprehension Syntax},
+    journal = {{SIGMOD} Record},
+    volume  = {23},
+    number  = {1},
+    pages   = {87--96},
+    year    = {1994},
+    doi     = {10.1145/181550.181564},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/journals/sigmod/BunemanLSTW94},
+}
+
+@article{Wong2000,
+    author  = {Limsoon Wong},
+    title   = {Kleisli, a functional query system},
+    journal = {Journal of Functional Programming},
+    volume  = {10},
+    number  = {1},
+    pages   = {19--56},
+    year    = {2000},
+    doi     = {10.1017/S0956796899003585},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/journals/jfp/Wong00},
+}
+
+@inproceedings{Meijer2006,
+    author  = {Erik Meijer and Brian Beckman and Gavin M. Bierman},
+    title   = {{LINQ:} reconciling object, relations and {XML} in the .NET framework},
+    booktitle = {Proceedings of the {ACM} {SIGMOD} International Conference on Management of Data, Chicago, Illinois, USA, June 27-29, 2006},
+    pages   = {706},
+    year    = {2006},
+    doi     = {10.1145/1142473.1142552},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/conf/sigmod/MeijerBB06},
+}
+
+% Semantics of computations
 
 @article{Moggi1991,
-  doi = {10.1016/0890-5401(91)90052-4},
-  url = {http://dx.doi.org/10.1016/0890-5401(91)90052-4},
-  title = {Notions of computation and monads},
-  author = {Eugenio Moggi},
-  journal = {Information and Computation},
-  volume = {93},
-  number = {1},
-  pages = {55--92},
-  year  = {1991}
+    author  = {Eugenio Moggi},
+    title   = {Notions of Computation and Monads},
+    journal = {Information and Computation},
+    volume  = {93},
+    number  = {1},
+    pages   = {55--92},
+    year    = {1991},
+    doi     = {10.1016/0890-5401(91)90052-4},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/journals/iandc/Moggi91},
 }
 
-@incollection{Uustalu2006,
-  doi = {10.1007/11894100_5},
-  url = {http://dx.doi.org/10.1007/11894100_5},
-  title = {The Essence of Dataflow Programming},
-  author = {Tarmo Uustalu and Varmo Vene},
-  booktitle = {Central European Functional Programming School},
-  publisher = {Springer},
-  address = {Berlin, Heidelberg},
-  pages = {135--167},
-  year = {2006}
+@article{Wadler2003,
+    author  = {Philip Wadler and Peter Thiemann},
+    title   = {The marriage of effects and monads},
+    journal = {{ACM} Transactions on Computational Logic},
+    volume  = {4},
+    number  = {1},
+    pages   = {1--32},
+    year    = {2003},
+    doi     = {10.1145/601775.601776},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/journals/tocl/WadlerT03},
+}
+
+@inproceedings{Uustalu2005,
+    author  = {Tarmo Uustalu and Varmo Vene},
+    title   = {The Essence of Dataflow Programming},
+    booktitle = {Central European Functional Programming School, First Summer School, {CEFP} 2005, Budapest, Hungary, July 4-15, 2005, Revised Selected Lectures},
+    pages   = {135--167},
+    year    = {2005},
+    doi     = {10.1007/11894100_5},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/conf/cefp/UustaluV05},
+}
+
+@article{Spivak2012,
+    author  = {David I. Spivak},
+    title   = {Kleisli Database Instances},
+    journal = {CoRR},
+    volume  = {abs/1209.1011},
+    year    = {2012},
+    url     = {https://arxiv.org/abs/1209.1011},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/journals/corr/abs-1209-1011},
+}
+
+@inproceedings{Petricek2013,
+    author  = {Tomas Petricek and Dominic A. Orchard and Alan Mycroft},
+    title   = {Coeffects: Unified Static Analysis of Context-Dependence},
+    booktitle = {Automata, Languages, and Programming - 40th International Colloquium, {ICALP} 2013, Riga, Latvia, July 8-12, 2013, Proceedings, Part {II}},
+    pages   = {385--397},
+    year    = {2013},
+    doi     = {10.1007/978-3-642-39212-2_35},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/conf/icalp/PetricekOM13},
+}
+
+@inproceedings{Gaboardi2016,
+    author  = {Marco Gaboardi and Shin{-}ya Katsumata and Dominic A. Orchard and Flavien Breuvart and Tarmo Uustalu},
+    title   = {Combining effects and coeffects via grading},
+    booktitle = {Proceedings of the 21st {ACM} {SIGPLAN} International Conference on Functional Programming, {ICFP} 2016, Nara, Japan, September 18-22, 2016},
+    pages   = {476--489},
+    year    = {2016},
+    doi     = {10.1145/2951913.2951939},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/conf/icfp/GaboardiKOBU16},
+}
+
+% Adjoint situation
+
+@article{Goguen1972,
+    author  = {Joseph A. Goguen},
+    title   = {Realization is Universal},
+    journal = {Mathematical Systems Theory},
+    volume  = {6},
+    number  = {4},
+    pages   = {359--374},
+    year    = {1972},
+    doi     = {10.1007/BF01843493},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/journals/mst/Goguen72},
+}
+
+@inproceedings{Nielsen1993,
+    author  = {Mogens Nielsen and Vladimiro Sassone and Glynn Winskel},
+    title   = {Relationships Between Models of Concurrency},
+    booktitle = {A Decade of Concurrency, Reflections and Perspectives, {REX} School/Symposium, Noordwijkerhout, The Netherlands, June 1-4, 1993, Proceedings},
+    pages   = {425--476},
+    year    = {1993},
+    doi     = {10.1007/3-540-58043-3_25},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/conf/rex/NielsenSW93},
+}
+
+@inproceedings{Cartmell1985,
+    author  = {John Cartmell},
+    title   = {Formalizing the Network and Hierarchical Data Models --- an Application of Categorical Logic},
+    booktitle = {Category Theory and Computer Programming, Tutorial and Workshop, Guildford, UK, September 16-20, 1985 Proceedings},
+    pages   = {466--492},
+    year    = {1985},
+    doi     = {10.1007/3-540-17162-2_138},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/conf/ctcs/Cartmell85},
+}
+
+@techreport{Clark1999,
+    author  = {James Clark and Steve DeRose},
+    title   = {{XML} Path Language ({XPath}) Version 1.0},
+    number  = {REC-xpath-19991116},
+    institution = {W3C},
+    year    = {1999},
+    url     = {https://www.w3.org/TR/1999/REC-xpath-19991116/},
+}
+
+@inproceedings{Evans2007,
+    author  = {Clark C. Evans},
+    title   = {{HTSQL} --- a Native Web Query Language},
+    booktitle = {Proceedings of the 2007 International Conference on Internet Computing, {ICOMP} 2007, Las Vegas, Nevada, USA, June 25-28, 2007},
+    pages   = {439--445},
+    year    = {2007},
+    biburl  = {http://dblp.uni-trier.de/rec/bib/conf/ic/Evans07},
+    url     = {http://htsql.org/paper/icomp07_paper.pdf}
+}
+
+@misc{Ben-Kiki2005,
+    author  = {Oren Ben-Kiki and Clark C. Evans and Ingy d{\"o}t Net},
+    title   = {{YAML} {A}in't {M}arkup {L}anguage ({YAML}) Version 1.1},
+    year    = {2005},
+    howpublished = {http://yaml.org/spec/1.1/},
+    url     = {http://yaml.org/spec/1.1/},
 }
 

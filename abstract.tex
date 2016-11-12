@@ -4,15 +4,17 @@
     for data analysts and other accidental programmers to let them query
     complex structured data.
 
-    Rabbit features new query semantics, in which a query is represented as a
-    function with certain input type, output type and cardinality.  Notably,
-    query cardinality is modeled as a monadic structure over its output type,
-    with monadic composition giving us ability to navigate the database.  Other
-    \emph{query combinators} express operations for aggregating, filtering,
-    grouping, sorting and paginating data, roll-up operations and operations on
-    self-referential data.  By extending the query model with a comonadic
-    structure over its input type, we can express queries with running
-    aggregates and queries with parameters.  Rabbit semantics enables pipeline
+    Starting with the functional database model and using the methods of
+    categorical semantics of computations, we develop denotational semantics of
+    database queries.  In Rabbit, a query is modeled as a mapping with certain
+    input type, output type and cardinality, where query cardinality is a
+    monadic container holding the query output.  In this model, monadic
+    composition can be used to navigate the database, while other \emph{query
+    combinators} can aggregate, filter, sort and paginate data, construct
+    compound data, connect self-referential data, and reorganize data with
+    grouping and database cube operations.  A context-aware query model, with
+    the input context represented as a como\-nadic container, can express query
+    parameters and window functions.  Rabbit semantics enables pipeline
     notation, encouraging its users to construct database queries as a series
     of distinct steps, each individually crafted and tested.  We believe that
     for data analytics, Rabbit presents a superior alternative to SQL.

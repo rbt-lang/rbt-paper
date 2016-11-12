@@ -198,12 +198,12 @@ to get \emph{the number of employees in every department}
     \Department\To\Count(\Employee) : \Void \to \Seq{\Int}.
 \end{equation*}
 
-In the next example, this query is further transformed by applying the $\Max$
-aggregate.
+Using the combinator $\Max$, we can further collapse this list to a single
+number, as shown in the next example.
 
 \begin{demo}
     \label{ex:max-department-count-employee}
-    Show the highest number of employees among all departments.
+    Show the size of the largest department.
     \begin{equation*}
         \Max(\Department\To\Count(\Employee))
     \end{equation*}
@@ -253,7 +253,7 @@ described below.
 
 \subsection*{Filtering Data}
 
-Next, we will demonstrate how to produce entities that satisfy a certain
+We can now demonstrate how to produce entities that satisfy a certain
 condition.
 
 \begin{demo}
@@ -320,7 +320,7 @@ combinators.
     \end{align*}
 \end{demo}
 
-\subsection*{Sorting and Slicing Data}
+\subsection*{Sorting and Paginating Data}
 
 The combinator $\Sort$, applied to a plural query, sorts the query output in
 ascending order.
@@ -370,9 +370,9 @@ Here, the sort key is wrapped with the combinator $\Desc$ to indicate the
 descending sort order.
 
 It is not immediately obvious how to implement $\Desc$ without violating the
-query model.  Naively, $\Desc$ acts like a negation operator, however, not
-every type supports negation.  Instead, we can attach a sort order to each
-type, so that
+query model.  Na\"{\i}vely, $\Desc$ acts like a negation operator, however, not
+every type supports negation.  Instead, we can attach a sort order to the type,
+so that
 \begin{equation*}
     \Int_{\le} \quad\text{and}\quad \Int_{\ge}
 \end{equation*}
@@ -528,8 +528,8 @@ redundancy, but also by assigning a name to a key concept of the query.
 Hierarchical relationships are encoded by primitives with identical types of
 input and output.
 
-For example, a relationship between an employee and their manager is expressed
-with
+For example, the relationship between an employee and their manager is
+expressed with
 \begin{equation*}
     \Manager : \Emp \to \Opt{\Emp}.
 \end{equation*}

@@ -2,11 +2,12 @@
 \section{Conclusion and Related Work}
 \label{sec:conclusion}
 
-We designed a combinator-based database query language and, using the
-framework of (bi-)Kleisli arrows \cite{Moggi1991, Uustalu2006}, described its
-denotational semantics.
+We designed a combinator-based database query language and, using the framework
+of (bi-)Kleisli arrows \cite{Moggi1991, Uustalu2005}, described the denotation
+of database queries.
 
-Specifically, we started with some base category containing entity classes
+The functional database model gave us the underlying category containing entity
+classes
 \begin{equation*}
     \Dept,\; \Emp,\; \ldots,
 \end{equation*}
@@ -14,7 +15,7 @@ simple value types
 \begin{equation*}
     \Void,\; \Bool,\; \Int,\; \Text,\; \ldots,
 \end{equation*}
-and container types
+and composite types
 \begin{equation*}
     \Tuple{\ldots},\; \Opt{\ldots},\; \Seq{\ldots}, \ldots.
 \end{equation*}
@@ -23,44 +24,92 @@ and output of type $B$ can be expressed as an arrow
 \begin{equation*}
     A \to B.
 \end{equation*}
-To model query cardinality, we wrapped the output type in a monadic container:
+To model optional and plural queries, we wrapped the output type of the query
+in a monadic container and represented the query as a Kleisli arrow:
 \begin{equation*}
     A \to \Wrap{M}{B}.
 \end{equation*}
-Query cardinalities form a family
-$\mathcal{M}=\{\,\keyword{1},\;\keyword{Opt},\;\keyword{Seq}\,\}$ of monads
-equipped with a semilattice structure: for any
-for any $M_1, M_2 \in \mathcal{M}$, there exists
+The containers form a family $\mathcal{M}$ of monads equipped with a
+join-semilattice structure: for any $M_1, M_2 \in \mathcal{M}$, there exists
 $M_1 \sqcup M_2 \in \mathcal{M}$ with natural injections
 \begin{equation*}
     \Wrap{M_1}{A} \rightarrow \Wrap{(M_1 \sqcup M_2)}{A} \leftarrow \Wrap{M_2}{A}.
 \end{equation*}
-In order to model query context, we wrapped the input type in a dual structure,
-a comonadic container:
+To represent query parameters and the input flow, we wrapped the input type in
+a comonadic container, expressing context-aware queries as bi-Kleisli arrows:
 \begin{equation*}
     \Wrap{W}{A} \to \Wrap{M}{B}.
 \end{equation*}
-Dually, query context is represented by a semilattice
-$\mathcal{W}=\{\,\keyword{1},\;\keyword{Rel},\;\keyword{Env}_{\Int},\;\ldots\,\}$
-of comonads: for any $W_1, W_2 \in \mathcal{W}$, there exists
+Dually, the comonadic containers form a meet-semi\-lat\-tice $\mathcal{W}$ of
+comonads: for any $W_1, W_2 \in \mathcal{W}$, there exists
 $W_1 \sqcap W_2 \in \mathcal{W}$ with natural projections
 \begin{equation*}
     \Wrap{W_1}{A} \leftarrow (W_1 \sqcap W_2)\{A\} \rightarrow \Wrap{W_2}{A}.
 \end{equation*}
 Moreover, for any monad $M\in\mathcal{M}$ and comonad $W\in\mathcal{W}$, there
-exists a natural transformation called a distributive law:
+should exist a natural transformation called a distributive law:
 \begin{equation*}
-    W\{M\{A\}\} \to M\{W\{A\}\}.
+    \Wrap{W}{\Wrap{M}{A}} \to \Wrap{M}{\Wrap{W}{A}}.
 \end{equation*}
-Composition of queries
+Then, the composition of queries
 \begin{equation*}
-    p : W_1\{A\} \to M_1\{B\}, \quad q : W_2\{B\} \to M_2\{C\}
+    p : \Wrap{W_1}{A} \to \Wrap{M_1}{B}, \quad q : \Wrap{W_2}{B} \to \Wrap{M_2}{C}
 \end{equation*}
-is a query of the form
+could be defined as a query of the form
 \begin{multline*}
-    p\,\To\,q : W\{A\} \to M\{B\} \\ (W = W_1 \sqcap W_2,\; M = M_1 \sqcup M_2),
+    p\,\To\,q : \Wrap{W}{A} \to \Wrap{M}{C} \\ (W = W_1 \sqcap W_2,\; M = M_1 \sqcup M_2)
 \end{multline*}
-which is constructed using the lattice structures of $\mathcal{M}$ and
-$\mathcal{W}$, compositional properties of monads and comonads, and the
-distributive law for $M$ and $W$.
+constructed using the lattice structures of $\mathcal{M}$ and $\mathcal{W}$,
+compositional properties of monads and comonads, and the distributive law for
+$M$ and $W$.
+
+Let us briefly discuss some related work.  Combinators are higher-order
+functions that serve to construct expressions without bound variables.  They
+were introduced as the building blocks of mathematical
+logic~\cite{Schoenfinkel1924, Curry1930}, from where they migrated to the
+programming practice to become a popular tool for constructing DSLs; examples
+include such diverse domains as parsers~\cite{Wadler1985, Hutton1996}, reactive
+animation~\cite{Elliott1997}, financial contracts~\cite{Jones2000}, and
+the view-update problem~\cite{Foster2005}.
+
+Although a few combinator-based query models have been
+proposed~\cite{Buneman1979, Bossi1984, Batory1988, Erwig1991, Cherniack1996},
+it is generally accepted that ``combinator-style languages are difficult for
+users to master and thus ill-suited as query languages''~\cite{Cherniack1996}.
+We have to disagree.  The syntax of a compositional variable-free DSL
+directly mirrors its semantics, giving the DSL a strong sense of an
+\emph{executable specification}.  This is a very attractive property for a
+language oriented towards domain specialists.  The key is to find the correct
+semantics.
+
+The functional database model, introduced in~\cite{Kerschberg1976, Sibley1977},
+gave rise to a number of query languages: FQL~\cite{Buneman1979},
+DAPLEX~\cite{Shipman1981}, GENESIS~\cite{Batory1988}, Kleisli~\cite{Wong2000}
+and others; see~\cite{Gray2004} for a comprehensive survey.  Among them, FQL
+and its derivatives are remarkably close to
+Rabbit---Example~\ref{ex:composite-query} is a valid query in both.  The key
+difference is that we recognize the query cardinality as a monad and a query as
+a Kleisli arrow.  It implies, for instance, that \emph{the number of
+departments} cannot be written as $\Department\To\Count$ since $\Seq{A}\to\Int$
+is not a valid query signature.  Instead, we have to accept $\Count$ as a query
+combinator.
+
+Rabbit syntax and scoping rules owe to XPath~\cite{Clark1999} and the authors'
+previous work on a URL-based query language~\cite{Evans2007}.
+
+Monads and their Kleisli arrows provide a generic compositional model of
+computations~\cite{Moggi1991}, in which different monads can express
+partiality, exceptions, input-output, and other computational effects.  For
+databases, a similar model for expressing different types of structured
+information has been advocated in~\cite{Spivak2012}.  A dual model of comonads
+and co-Kleisli arrows has been proposed for context-aware
+computations~\cite{Uustalu2005}.
+
+The hierarchical database model can be seen as a special case of the functional
+model.  Indeed, a link connecting child and parent classes could be represented
+as a function.  In the other direction, unfolding~\cite{Nielsen1993} provides a
+universal hierarchical view of any functional database.  In a very similar
+setting, \cite{Cartmell1985}~described a connection between network and
+hierarchical databases and suggested that it can be used as a basis of a query
+language.
 
