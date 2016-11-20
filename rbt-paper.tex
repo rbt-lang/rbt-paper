@@ -1,20 +1,22 @@
-\documentclass[9pt,twocolumn,article]{memoir}
+\documentclass[10pt,twocolumn,article]{memoir}
+
+\usepackage[keeplastbox]{flushend}
 
 \setlrmarginsandblock{0.75in}{0.75in}{*}
 \setulmarginsandblock{0.75in}{1in}{*}
 \setcolsepandrule{0.33in}{0in}
 \checkandfixthelayout
 
-\pretitle{\hrule\begin{center}\HUGE\sffamily}
-\posttitle{\par\end{center}\vskip 0.5em}
-\preauthor{\begin{center}\large \lineskip 0.5em\sffamily\begin{tabular}[t]{c}}
-\postauthor{\end{tabular}\end{center}}
-\predate{\begin{center}\sffamily}
-\postdate{\end{center}\hrule\vskip 2em}
-\newcommand{\email}[1]{\normalsize{\texttt{#1}}}
-
-\headstyles{memman}
 \counterwithout{section}{chapter}
+\newcommand{\email}[1]{\normalsize{\texttt{#1}}}
+\newcommand{\bigtablesize}{%
+    \let\orignewcommand\newcommand%
+    \let\newcommand\renewcommand%
+    \makeatletter%
+    \input{mem9.clo}%
+    \makeatother%
+    \let\newcommand\orignewcommand%
+}
 
 \input{prelude}
 

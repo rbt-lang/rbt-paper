@@ -19,9 +19,9 @@ queries: parameterized queries and queries with window functions.
     \end{align*}
 \end{demo}
 
-Practical database queries often depend upon \emph{query parameters}, which, in
-Rabbit, are stored in the query \emph{environment}.  The
-environment is represented by a container, such as
+Practical database queries often depend upon \emph{query parameters}, which
+collectively form the query \emph{environment}.  The environment is represented
+by a container, such as
 \begin{equation*}
     \Env{\DEPARTMENT:\Text,\SALARY:\Int}{A} \equiv \Tuple{A,\; \Tuple{\DEPARTMENT:\Text,\; \SALARY:\Int}},
 \end{equation*}

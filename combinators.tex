@@ -67,7 +67,7 @@ produced by the following example.
     \end{equation*}
 \end{demo}
 
-On the other hand, the next example is very different from an apparently
+On the other hand, the next example is very different from the apparently
 similar Example~\ref{ex:department-name}.
 
 \begin{demo}
@@ -101,17 +101,18 @@ Section~\ref{sec:quotients}.
     \end{equation*}
 \end{demo}
 
-In this example, the query should emit a sequence of entity objects.  In our
-Rabbit implementation, entity values are not observable directly, so this
-example would instead display a list of records with employee attributes.
+This example emits a sequence of employee entities, which, in practice, could
+be represented as records with employee attributes.
+
+\input{table-common-combinators}
 
 \subsection*{Summarizing Data}
 
-Let us see how the extracted data can be summarized.
+Let us show how the extracted data can be summarized.
 
 \begin{demo}
     \label{ex:count-department}
-    Show the number of all departments.
+    Show the number of departments.
     \begin{equation*}
         \Count(\Department)
     \end{equation*}
@@ -127,11 +128,11 @@ It is constructed by applying the $\Count$ combinator to a query that generates
     \Department : \Void \to \Seq{\Dept}.
 \end{equation*}
 Comparing the signatures of these two queries, we can derive the signature of
-the $\Count$ combinator, in this specific case,
+the $\Count$ combinator, in this specific case
 \begin{equation*}
     (\Void \to \Seq{\Dept}) \to (\Void \to \Int),
 \end{equation*}
-and, in general,
+and, in general
 \begin{equation*}
     \Count: (A \to \Seq{B}) \to (A \to \Int).
 \end{equation*}
@@ -147,8 +148,7 @@ to a query combinator
 \end{equation*}
 
 We call $\Count$ and other unary combinators that transform a plural query to a
-singular (or optional) query \emph{aggregate} combinators.  Some of aggregate
-combinators are listed in Table~\ref{tab:common-combinators}.
+singular (or optional) query \emph{aggregate} combinators.
 
 The next example follows the same pattern.
 
@@ -179,13 +179,13 @@ no employees.
     \end{equation*}
 \end{demo}
 
-In this example, we convert a plural relationship, \emph{all employees in the
-given department},
+In this example, we transform a plural relationship, \emph{all employees in the
+given department}
 \begin{equation*}
     \Employee : \Dept \to \Seq{\Emp}
 \end{equation*}
 to a calculated attribute, \emph{the number of employees in the given
-department},
+department}
 \begin{equation*}
     \Count(\Employee) : \Dept \to \Int.
 \end{equation*}
@@ -193,7 +193,7 @@ Then we attach it to
 \begin{equation*}
     \Department : \Void \to \Seq{\Dept}
 \end{equation*}
-to get \emph{the number of employees in every department}
+to get \emph{the number of employees in each department}
 \begin{equation*}
     \Department\To\Count(\Employee) : \Void \to \Seq{\Int}.
 \end{equation*}
@@ -216,7 +216,7 @@ then shaping it into the desired form with a chain of combinators.  This
 construction is made apparent with the \emph{pipeline notation}.
 
 In pipeline notation, the first argument of a combinator is placed in front of
-it, separated by colon ($\,\Apply\,$):
+it, separated by colon (``$\,\Apply\,$''):
 \begin{equation*}
     p \Apply F \equiv F(p), \qquad
     p \Apply F(q_1,\ldots,q_n) \equiv F(p,q_1,\ldots,q_n).
@@ -290,13 +290,11 @@ to an operation on queries
 \begin{equation*}
     (p > q) = a \mapsto (p(a) > q(a)).
 \end{equation*}
-For more examples of constants and regular functions lifted to query primitives
-and combinators, see Table~\ref{tab:common-combinators}.
 
 Third, a binary combinator $\Filter$ emits those $\Employee$ entities that
-satisfy the predicate query $\Salary > 150000$.  In general, given
+satisfy the condition $\Salary > 150000$.  In general, given
 \begin{equation*}
-    p : A \to \Seq{B}, \qquad q : B \to \Bool
+    p : A \to \Seq{B}, \qquad q : B \to \Bool,
 \end{equation*}
 a query
 \begin{equation*}
@@ -307,8 +305,7 @@ produces the values of $p$ that satisfy condition $q$
     \Filter(p,\; q) = a \mapsto [\,b \mid b \gets p(a),\; q(b)=\True\,].
 \end{equation*}
 
-The following example shows how smoothly $\Filter$ combines with other
-combinators.
+The following example shows how $\Filter$ could be used with other combinators.
 
 \begin{demo}
     \label{ex:filter-by-size-and-count}
@@ -371,8 +368,8 @@ descending sort order.
 
 It is not immediately obvious how to implement $\Desc$ without violating the
 query model.  Na\"{\i}vely, $\Desc$ acts like a negation operator, however, not
-every type supports negation.  Instead, we can attach a sort order to the type,
-so that
+every type supports negation.  Instead, we make the sort order a part of the
+type definition, so that
 \begin{equation*}
     \Int_{\le} \quad\text{and}\quad \Int_{\ge}
 \end{equation*}
@@ -481,11 +478,11 @@ In this example, the query output has the type
     & \Manager : \Seq{\Tuple{\Name : \Text,\; \Salary : \Int}}}\}.
 \end{align*}
 
-Recall that we could represent the data source in a hierarchical form (see
-Figure~\ref{fig:unfolded-form}).  Furthermore, the query output could also be
-represented as a hierarchical database, whose structure is determined by the
+Recall that we represented the data source in a universal hierarchical form
+(see Figure~\ref{fig:unfolded-form}).  Furthermore, the query output could also
+be represented as a hierarchical database, whose structure is determined by the
 query signature (see Figure~\ref{fig:department-select-name-etc}).  Thus,
-a query could be seen as transforming one hierarchical database to another.
+queries could be seen as transformations of hierarchical databases.
 
 \input{figure-department-select-name-etc}
 
@@ -525,8 +522,7 @@ redundancy, but also by assigning a name to a key concept of the query.
 
 \subsection*{Hierarchical Relationships}
 
-Hierarchical relationships are encoded by primitives with identical types of
-input and output.
+Hierarchical relationships are encoded by self-referential primitives.
 
 For example, the relationship between an employee and their manager is
 expressed with
@@ -583,21 +579,20 @@ with
 \end{equation*}
 
 \begin{demo}
-    \label{ex:employee-salary-vs-superior}
-    How does employees' salary compare to the average of their superiors?
-    \begin{alignat*}{2}
-        & \Employee\hidewidth && \\
-        & \Apply\Select(&& \Name, \\
-        & && \Salary-\Mean(\Connect(\Manager)\To\Salary))
-    \end{alignat*}
+    \label{ex:city-treasurer-subordinates}
+    Find all direct and indirect subordinates of the City Treasurer.
+    \begin{multline*}
+        \Employee \\
+        \shoveleft{\Apply\Filter(\Any(\Connect(\Manager)\To\Position =} \\
+        \textliteral{CITY\ TREASURER}))
+    \end{multline*}
 \end{demo}
 
-The query
+Here, the query
 \begin{equation*}
-    \Connect(\Manager)\To\Salary : \Emp \to \Seq{\Int}
+    \Connect(\Manager)\To\Position : \Emp \to \Seq{\Text}
 \end{equation*}
-produces \emph{the salaries of all managers above the given employee}.  They
-are collapsed to a single number with the combinator $\Mean$.
+produces \emph{the positions of all managers above the given employee}.
 
 In general, the combinator $\Connect$ maps an optional self-referential query to a
 plural self-referential query by taking its transitive closure:
@@ -606,6 +601,4 @@ plural self-referential query by taking its transitive closure:
     \shoveleft{\Connect(p) = a \mapsto [\;p(a),\; p(p(a)),\; \ldots,\; p^{(n)}(a)\;]} \\
     (p^{(n)}(a) \ne \bot,\; p^{(n+1)}(a) = \bot).
 \end{multline*}
-
-\input{table-common-combinators}
 

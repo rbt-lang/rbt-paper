@@ -12,13 +12,13 @@ The combinator approach gives us a roadmap to design a database query language:
 
 \begin{itemize}
 \item
-Define the model of database queries.
+define the model of database queries;
 
 \item
-Describe the set of primitive queries.
+describe the set of primitive queries;
 
 \item
-Describe the combinators for making composite queries.
+describe the combinators for making composite queries.
 \end{itemize}
 
 To elaborate on this idea, we need some sample structured data.  Throughout
@@ -57,19 +57,19 @@ can write our first composite query.
 \end{demo}
 
 In this example, $\Department\To\Name$ is a query written in Rabbit notation,
-$\Emp \to \Text$ is its signature.  The period $(\To)$ denotes the composition
-combinator, which is a polymorphic binary operator with a signature
+and $\Emp \to \Text$ is its signature.  The period (``$\To$'') denotes the
+composition combinator, which is a polymorphic binary operator with a signature
 \begin{equation*}
         \placeholder\,\To\,\placeholder : (A \to B,\; B \to C) \to (A \to C).
 \end{equation*}
 
-And yet, even though this query model can express one database query, it does
-not seem to be powerful enough to become the foundation of a query language.
-What is this model missing?
+Even though this query model can express one database query, it does not seem
+to be powerful enough to become the foundation of a query language.  What is
+this model missing?
 
 First, it is awkward that a query always demands an input.  It means that we
 cannot express an input-free query like \emph{show a list of all
-departments}.\footnote{We italicize \emph{business questions} that specify
+employees}.\footnote{We italicize \emph{business questions} that specify
 $\keyword{database}$ $\keyword{queries}$.}
 
 Further, although the relationships are bidirectional, the model only covers
@@ -90,28 +90,28 @@ every employee must have a manager, which is untrue.  Apparently, a pure
 functional model is too restrictive to express the variety of relationships
 between database entities.
 
-This paper shows how to complete this sketch of a query language.  It is
-organized as follows.
+This paper shows how to complete this query model and build a query language on
+top of it.  It is organized as follows.
 
-In Section~\ref{sec:cardinality}, we show how to model optional and plural
+In Section~\ref{sec:cardinality}, we show how to represent optional and plural
 relationships using the notion of query cardinality, which, following the
-approach of categorical semantics of computations~\cite{Moggi1991}, is defined
-as a monadic container that holds the query output.  This lets us describe a
-compositional model for database queries.
+approach of categorical semantics of computations~\cite{Moggi1991}, determines
+the monadic container for the query output.  This lets us establish a
+compositional model of database queries.
 
 In Section~\ref{sec:combinators}, we show how common data operations can be
 expressed as query combinators.  Specifically, we describe combinators that
-extract, aggregate, filter, sort and paginate data, construct compound data, and
+extract, aggregate, filter, sort and paginate data; construct compound data; and
 connect self-referential data.
 
-In Section~\ref{sec:quotients}, we show how grouping and database cube
-operations can be implemented as combinators that reorganize the intrinsic
-hierarchical structure of the database.
+In Section~\ref{sec:quotients}, we show how grouping and data cube operations
+can be implemented as combinators that reorganize the intrinsic hierarchical
+structure of the database.
 
 In Section~\ref{sec:context}, using the approach to the semantics of dataflow
-programming described in~\cite{Uustalu2005}, we extend the query model to
-include a comonadic query context, which allows us to express query parameters
-and window functions.
+programming~\cite{Uustalu2005}, we extend the query model to include a
+comonadic query context, which allows us to express query parameters and window
+functions.
 
 In Section~\ref{sec:conclusion}, we summarize the query model and briefly
 discuss some related work.

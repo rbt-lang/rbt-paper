@@ -9,21 +9,17 @@ In this section, we resolve these issues by introducing the notion of
 \emph{query cardinality}.
 
 We found it difficult to model these two relationships:
-
 \begin{enumerate}[(i)]
 \item \label{itm:employee-to-manager}
 \emph{An employee may have a manager.}
-
 \item \label{itm:department-to-employee}
 \emph{A department is staffed by a number of employees.}
 \end{enumerate}
-
 We were also puzzled on how to express input-free queries such as:
-
 \begin{enumerate}[(i)]
 \setcounter{enumi}{2}
-\item \label{itm:department-set}
-\emph{Show a list of all departments.}
+\item \label{itm:employee-set}
+\emph{Show a list of all employees.}
 \end{enumerate}
 
 We could attempt to represent optional and plural output values as instances of
@@ -41,21 +37,24 @@ with signatures
     & \Manager && : \Emp && \to \Opt{\Emp}, \\
     & \Employee && : \Dept && \to \Seq{\Emp}.
 \end{alignat*}
-Moreover, we could guess the output of query~\ref{itm:department-set}.  Indeed,
-\emph{a list of all departments} can only mean $\Seq{\Dept}$.
+Moreover, we could guess the output of query~\ref{itm:employee-set}.  Indeed,
+\emph{a list of all employees} can only mean $\Seq{\Emp}$.
 
-To describe the input of query~\ref{itm:department-set}, we use a
+To describe the input of query~\ref{itm:employee-set}, we introduce a
 \emph{singleton} type
 \begin{equation*}
     \Void.
 \end{equation*}
-The type $\Void$ has a unique inhabitant ($\top:\Void$), and because there is no
-freedom in choosing a value of this type, it can designate input that can never
-affect the result of a query.  Thus, we can express~\ref{itm:department-set} as
-a \emph{class} primitive
+The type $\Void$ has a unique inhabitant ($\top:\Void$), and because there is
+no freedom in choosing a value of this type, it can designate input that can
+never affect the result of a query.  Thus, we can
+express~\ref{itm:employee-set} as a \emph{class} primitive
 \begin{equation*}
-    \Department : \Void \to \Seq{\Dept}.
+    \Employee : \Void \to \Seq{\Emp}.
 \end{equation*}
+Note that even though both \ref{itm:department-to-employee} and
+\ref{itm:employee-set} are denoted by the same name, we could always
+distinguish them by their input type.
 
 Unfortunately, although containers let us represent optional and plural output,
 they do not compose well.  For example, it is tempting to express \emph{for a
@@ -63,25 +62,27 @@ given employee, find their manager's salary} as a composition
 \begin{equation} \label{eq:manager-to-salary}
     \Manager\To\Salary, \tag{$\star$}
 \end{equation}
-or \emph{show the names of all departments} as
-\begin{equation} \label{eq:department-to-name}
-    \Department\To\Name. \tag{$\star\star$}
+or \emph{show the names of all employees} as
+\begin{equation} \label{eq:employee-to-name}
+    \Employee\To\Name. \tag{$\star\star$}
 \end{equation}
 However, if we look at the signatures of the components
 \begin{alignat*}{6}
     & \Manager && : \Emp && \to \Opt{\Emp}, \quad && \Salary && : \Emp && \to \Int, \\
-    & \Department && : \Void && \to \Seq{\Dept}, \quad && \Name && : \Dept && \to \Text,
+    & \Employee && : \Void && \to \Seq{\Emp}, \quad && \Name && : \Emp && \to \Text,
 \end{alignat*}
 we see that their intermediate domains do not agree, which means their
 compositions are ill-formed.
 
-To make the queries compose again, we need to distinguish between the output
-type of a query and its cardinality.  For example, we should say that
+To make the queries compose again, we should distinguish between the output
+type of a query and its cardinality.\footnote{More precisely, we should
+represent cardinalities as monads and queries as their Kleisli
+arrows~\cite{Moggi1991}.} For example, we should say that
 query~\ref{itm:employee-to-manager} is an optional query from $\Emp$ to $\Emp$,
 \ref{itm:department-to-employee} is a plural query from $\Dept$ to $\Emp$, and
-\ref{itm:department-set} is a plural query from $\Void$ to $\Dept$.  Then, any
-two queries should compose, regardless of their cardinalities, so long as they
-have compatible intermediate types; furthermore, the least upper bound of their
+\ref{itm:employee-set} is a plural query from $\Void$ to $\Emp$.  Then, any two
+queries should compose, regardless of their cardinalities, so long as they have
+compatible intermediate types; furthermore, the least upper bound of their
 cardinalities is the cardinality of their composition.
 
 Specifically, given two queries
@@ -96,15 +97,15 @@ and then use the \emph{monadic composition} combinator
 \begin{equation*}
     \placeholder\,\To\,\placeholder : (A \to \Wrap{M}{B},\; B \to \Wrap{M}{C}) \to (A \to \Wrap{M}{C})
 \end{equation*}
-to construct their composition
+to construct
 \begin{equation*}
     p\,\To\,q : A \to \Wrap{M}{C}.
 \end{equation*}
 Using this rule, we can justify the queries (\ref{eq:manager-to-salary}) and
-(\ref{eq:department-to-name}) and give them signatures
+(\ref{eq:employee-to-name}) and give them signatures
 \begin{alignat*}{3}
     & \Manager\To\Salary && : \Emp && \to \Opt{\Int}, \\
-    & \Department\To\Name && : \Void && \to \Seq{\Text}.
+    & \Employee\To\Name && : \Void && \to \Seq{\Text}.
 \end{alignat*}
 
 Let us work out the details.  Query cardinalities are ordered with respect to
@@ -121,7 +122,7 @@ are defined by
     & \; && \bot && : \Opt{A} && \longmapsto [\;] && : \Seq{A}, \\
     & a : A \longmapsto\ && \optional{a} && : \Opt{A} && \longmapsto [a] && : \Seq{A}.
 \end{alignat*}
-This order lets us, whenever nessesary, promote any query $A\to\Wrap{M}{B}$ to
+This order lets us, whenever necessary, promote any query $A\to\Wrap{M}{B}$ to
 a query $A\to\Wrap{M'}{B}$ with a greater cardinality $M' \sqsupseteq M$.
 
 Monadic composition for the option and sequence containers is well known.  For
@@ -192,8 +193,6 @@ and relationships
     & \Manager && : \Emp && \to \Opt{\Emp}, \\
     & \Subordinate && : \Emp && \to \Seq{\Emp}.
 \end{alignat*}
-Note that a name can be shared by multiple primitives as long as they have
-different input types.
 
 \item[Combinators:]
 The composition combinator sends two queries
@@ -206,17 +205,17 @@ to their composition
     p\,\To\,q : A \to M\{C\} \qquad (M = M_1 \sqcup M_2).
 \end{equation*}
 
-More combinators are described in the following sections.
+Other common combinators are listed in Table~\ref{tab:common-combinators}.
+They are described in the following sections.
 \end{description}
 
 \input{figure-unfolded-form}
 
-Recall that we started with the schema graph in
-Figure~\ref{fig:sample-schema}, which gave us the original, incomplete set of
-primitives.  To reflect the remaining primitives, we should add the $\Void$
-node and the missing arcs (see Figure~\ref{fig:folded-form}).
-Furthermore, we will transform the schema graph into an (infinite) tree by
-unfolding it starting from the $\Void$ node (see
-Figure~\ref{fig:unfolded-form}).   The unfolded form could be seen as the
-database schema realized in the hierarchical data\-base model.
+Recall that we started with the schema graph in Figure~\ref{fig:sample-schema},
+which gave us the original, incomplete set of primitives.  To reflect the
+remaining primitives, we should add the $\Void$ node and the missing arcs (see
+Figure~\ref{fig:folded-form}).  Furthermore, we will transform the schema graph
+into an (infinite) tree by unfolding it starting from the $\Void$ node (see
+Figure~\ref{fig:unfolded-form}).  The unfolded tree represents the functional
+database in a universal hierarchical form.
 

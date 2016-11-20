@@ -2,30 +2,21 @@
 \section{Conclusion and Related Work}
 \label{sec:conclusion}
 
-We designed a combinator-based database query language and, using the framework
-of (bi-)Kleisli arrows \cite{Moggi1991, Uustalu2005}, described the denotation
-of database queries.
+In this paper, we introduce a combinator-based query language, \emph{Rabbit},
+and, using the framework of (co)monads and (bi-)Kleisli arrows \cite{Moggi1991,
+Uustalu2005}, describe the denotation of database queries.
 
-The functional database model gave us the underlying category containing entity
-classes
-\begin{equation*}
-    \Dept,\; \Emp,\; \ldots,
-\end{equation*}
-simple value types
-\begin{equation*}
-    \Void,\; \Bool,\; \Int,\; \Text,\; \ldots,
-\end{equation*}
-and composite types
-\begin{equation*}
-    \Tuple{\ldots},\; \Opt{\ldots},\; \Seq{\ldots}, \ldots.
-\end{equation*}
-We bootstrapped the query model by assuming that a query with input of type $A$
-and output of type $B$ can be expressed as an arrow
+The functional database model gives us the underlying category of serializable
+data.  It consists of entity classes such as $\Dept$ and $\Emp$; simple value
+types $\Void$, $\Bool$, $\Int$, $\Text$ and others; and their composites
+$\Tuple{\ldots}$, $\Opt{\ldots}$, and $\Seq{\ldots}$.  We bootstrap the query
+model by assuming that a query with input of type $A$ and output of type $B$
+can be expressed as an arrow
 \begin{equation*}
     A \to B.
 \end{equation*}
-To model optional and plural queries, we wrapped the output type of the query
-in a monadic container and represented the query as a Kleisli arrow:
+To model optional and plural queries, we wrap their output in a monadic
+container and represent them as Kleisli arrows
 \begin{equation*}
     A \to \Wrap{M}{B}.
 \end{equation*}
@@ -35,8 +26,8 @@ $M_1 \sqcup M_2 \in \mathcal{M}$ with natural injections
 \begin{equation*}
     \Wrap{M_1}{A} \rightarrow \Wrap{(M_1 \sqcup M_2)}{A} \leftarrow \Wrap{M_2}{A}.
 \end{equation*}
-To represent query parameters and the input flow, we wrapped the input type in
-a comonadic container, expressing context-aware queries as bi-Kleisli arrows:
+To represent query parameters and the input flow, we wrap the query input in a
+comonadic container, expressing context-aware queries as bi-Kleisli arrows
 \begin{equation*}
     \Wrap{W}{A} \to \Wrap{M}{B}.
 \end{equation*}
@@ -47,7 +38,7 @@ $W_1 \sqcap W_2 \in \mathcal{W}$ with natural projections
     \Wrap{W_1}{A} \leftarrow (W_1 \sqcap W_2)\{A\} \rightarrow \Wrap{W_2}{A}.
 \end{equation*}
 Moreover, for any monad $M\in\mathcal{M}$ and comonad $W\in\mathcal{W}$, there
-should exist a natural transformation called a distributive law:
+should exist a distributive law
 \begin{equation*}
     \Wrap{W}{\Wrap{M}{A}} \to \Wrap{M}{\Wrap{W}{A}}.
 \end{equation*}
@@ -63,53 +54,81 @@ constructed using the lattice structures of $\mathcal{M}$ and $\mathcal{W}$,
 compositional properties of monads and comonads, and the distributive law for
 $M$ and $W$.
 
-Let us briefly discuss some related work.  Combinators are higher-order
-functions that serve to construct expressions without bound variables.  They
-were introduced as the building blocks of mathematical
-logic~\cite{Schoenfinkel1924, Curry1930}, from where they migrated to the
-programming practice to become a popular tool for constructing DSLs; examples
-include such diverse domains as parsers~\cite{Wadler1985, Hutton1996}, reactive
-animation~\cite{Elliott1997}, financial contracts~\cite{Jones2000}, and
-the view-update problem~\cite{Foster2005}.
+Rabbit has its roots in the authors' work on a URL-based query
+language~\cite{Evans2007}, which provided a navigational interface to SQL
+databases.  While looking for a way to formally specify this language, we
+arrived at the combinator-based query model.
+
+Early on, we adopted the navigational approach of XPath~\cite{Clark1999}, which
+led us to represent the schema as a rooted graph (e.g.,
+Figure~\ref{fig:folded-form}) and queries as paths in this graph.  We
+recognized that each graph arc has some cardinality, and, consequently, so does
+each path.  Next came the realization that, for any dataset, the dataset values
+are all related to each other, and this relationship can be denoted as a plural
+self-referential arc $\Around$.  We discovered that the rule for composing
+$\Around$ with other plural arcs is exactly the distributive law for the
+$\type{Rel}$ comonad over the $\type{Seq}$ monad, which pushed us to model
+database queries as Kleisli arrows.
+
+Monads and their Kleisli arrows came to be a standard tool in denotational
+semantics after Moggi~\cite{Moggi1991} used them to define a generic
+compositional model of computations.  By varying the choice of monad, he
+expressed partiality, exceptions, input-output, and other computational
+effects.  Uustalu and Vene~\cite{Uustalu2005} used a dual model of comonads and
+co-Kleisli arrows to describe semantics of dataflow programming.  They also
+discussed distributive laws of a comonad over a monad.  In the context of
+databases, Spivak~\cite{Spivak2012} suggested using monads to encode data with
+complex structure.  Monad comprehension syntax~\cite{Trinder1989, Buneman1994}
+forms the core of query interfaces such as Kleisli~\cite{Wong2000} and
+LINQ~\cite{Meijer2006}.
+
+The graph representation of the database schema is a variation of the
+functional database model~\cite{Kerschberg1976, Sibley1977}, which gave rise to
+a number of query languages: FQL~\cite{Buneman1979}, DAPLEX~\cite{Shipman1981},
+GENESIS~\cite{Batory1988}, Kleisli~\cite{Wong2000} and others;
+see~\cite{Gray2004} for a comprehensive survey.  Among them, FQL and its
+derivatives are remarkably close to Rabbit---Example~\ref{ex:composite-query}
+is a valid query in both.  The key difference is that we interpret the period
+(``$\To$'') as a composition of Kleisli arrows, which implies, for instance,
+that we cannot define $\Count$ as $\Seq{A}\to\Int$ and write
+$\Employee\To\Count$ for \emph{the number of employees}.  Instead, we have to
+accept $\Count$ as a query combinator.
+
+Combinators are higher-order functions that serve to construct expressions
+without bound variables.  They were introduced as the building blocks of
+mathematical logic~\cite{Schoenfinkel1924, Curry1930}, from where they migrated
+to programming practice, becoming a popular tool for constructing DSLs;
+examples are found in diverse domains such as parsers~\cite{Wadler1985,
+Hutton1996}, reactive animation~\cite{Elliott1997}, financial
+contracts~\cite{Jones2000}, and the view-update problem~\cite{Foster2005}.
 
 Although a few combinator-based query models have been
 proposed~\cite{Buneman1979, Bossi1984, Batory1988, Erwig1991, Cherniack1996},
 it is generally accepted that ``combinator-style languages are difficult for
 users to master and thus ill-suited as query languages''~\cite{Cherniack1996}.
-We have to disagree.  The syntax of a compositional variable-free DSL
-directly mirrors its semantics, giving the DSL a strong sense of an
-\emph{executable specification}.  This is a very attractive property for a
-language oriented towards domain specialists.  The key is to find the correct
-semantics.
+We have to disagree.  The syntax of a combinator-based DSL directly mirrors its
+semantics, making it an \emph{executable specification}.  This is an attractive
+property for a language oriented towards domain experts, but only if the
+semantics does not contradict the experts' intuition.
 
-The functional database model, introduced in~\cite{Kerschberg1976, Sibley1977},
-gave rise to a number of query languages: FQL~\cite{Buneman1979},
-DAPLEX~\cite{Shipman1981}, GENESIS~\cite{Batory1988}, Kleisli~\cite{Wong2000}
-and others; see~\cite{Gray2004} for a comprehensive survey.  Among them, FQL
-and its derivatives are remarkably close to
-Rabbit---Example~\ref{ex:composite-query} is a valid query in both.  The key
-difference is that we recognize the query cardinality as a monad and a query as
-a Kleisli arrow.  It implies, for instance, that \emph{the number of
-departments} cannot be written as $\Department\To\Count$ since $\Seq{A}\to\Int$
-is not a valid query signature.  Instead, we have to accept $\Count$ as a query
-combinator.
+In Rabbit, the intuition relies upon the hierarchical data model, which is
+simple, familiar and prolific.  For querying purposes, we view a functional
+database as a universal hierarchical document obtained by unfolding the
+database schema into a potentially infinite schema tree (e.g.,
+Figure~\ref{fig:unfolded-form}).  We learned this technique from concurrency
+theory, where static ``system'' models are unfolded into runtime ``behavior''
+models~\cite{Nielsen1994}.  This technique has also been used to specify an
+adjunction between the network and hierarchical data
+models~\cite{Cartmell1985}.
 
-Rabbit syntax and scoping rules owe to XPath~\cite{Clark1999} and the authors'
-previous work on a URL-based query language~\cite{Evans2007}.
-
-Monads and their Kleisli arrows provide a generic compositional model of
-computations~\cite{Moggi1991}, in which different monads can express
-partiality, exceptions, input-output, and other computational effects.  For
-databases, a similar model for expressing different types of structured
-information has been advocated in~\cite{Spivak2012}.  A dual model of comonads
-and co-Kleisli arrows has been proposed for context-aware
-computations~\cite{Uustalu2005}.
-
-The hierarchical database model can be seen as a special case of the functional
-model.  Indeed, a link connecting child and parent classes could be represented
-as a function.  In the other direction, unfolding~\cite{Nielsen1993} provides a
-universal hierarchical view of any functional database.  In a very similar
-setting, \cite{Cartmell1985}~described a connection between network and
-hierarchical databases and suggested that it can be used as a basis of a query
-language.
+Rabbit's query model lets us rigorously define the basic notions of data
+analysis.  Indeed, it can naturally express optional and plural relationships,
+database navigation, transitive closure of hierarchical relationships,
+aggregate, grouping and data cube operations, query parameters, and window
+functions.  All operations on data are represented as query combinators, which
+has many practical advantages.  For data analysts, it allows them to build
+queries incrementally, validating the output at each step.  For programmers, it
+dramatically simplifies GUI-driven query construction.  Finally, Rabbit may be
+adapted to a variety of application domains by extending the sets of
+primitives, combinators, and (co)monadic containers.
 
