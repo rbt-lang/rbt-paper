@@ -78,9 +78,11 @@ effects.  Uustalu and Vene~\cite{Uustalu2005} used a dual model of comonads and
 co-Kleisli arrows to describe semantics of dataflow programming.  They also
 discussed distributive laws of a comonad over a monad.  In the context of
 databases, Spivak~\cite{Spivak2012} suggested using monads to encode data with
-complex structure.  Monad comprehension syntax~\cite{Trinder1989, Buneman1994}
-forms the core of query interfaces such as Kleisli~\cite{Wong2000} and
-LINQ~\cite{Meijer2006}.
+complex structure.  Monad comprehensions~\cite{Trinder1989, Buneman1994} form
+the core of query interfaces such as Kleisli~\cite{Wong2000} and
+LINQ~\cite{Meijer2006}.  In contrast with Rabbit, which is based on Kleisli
+arrows and monadic composition, these interfaces are modeled around monadic
+containers and the monadic \emph{bind} operator.
 
 The graph representation of the database schema is a variation of the
 functional database model~\cite{Kerschberg1976, Sibley1977}, which gave rise to
