@@ -177,14 +177,14 @@ are called singular, optional or plural.
 The set of primitives includes classes
 \begin{alignat*}{3}
     & \Department && : \Void && \to \Seq{\Dept}, \\
-    & \Employee && : \Void && \to \Seq{\Emp},
+    & \Employee && : \Void && \to \Seq{\Emp};
 \end{alignat*}
 attributes
 \begin{alignat*}{6}
     & \Name && : \Dept && \to \Text, \qquad
     && \Name && : \Emp && \to \Text, \\
     & \Position && : \Emp && \to \Text, \qquad
-    && \Salary && : \Emp && \to \Int,
+    && \Salary && : \Emp && \to \Int;
 \end{alignat*}
 and relationships
 \begin{alignat*}{3}
@@ -193,6 +193,14 @@ and relationships
     & \Manager && : \Emp && \to \Opt{\Emp}, \\
     & \Subordinate && : \Emp && \to \Seq{\Emp}.
 \end{alignat*}
+
+Recall that the original, incomplete set of primitives was obtained from the
+schema graph in Figure~\ref{fig:sample-schema}.  To reflect the full set of
+primitives, we should add the $\Void$ node and the remaining arcs (see
+Figure~\ref{fig:folded-form}).  Furthermore, we can transform the schema graph
+into an (infinite) tree by unfolding it starting from the $\Void$ node (see
+Figure~\ref{fig:unfolded-form}).  The unfolded tree represents the functional
+database in a \emph{universal hierarchical form}.
 
 \item[Combinators:]
 The composition combinator sends two queries
@@ -210,12 +218,4 @@ They are described in the following sections.
 \end{description}
 
 \input{figure-unfolded-form}
-
-Recall that we started with the schema graph in Figure~\ref{fig:sample-schema},
-which gave us the original, incomplete set of primitives.  To reflect the
-remaining primitives, we should add the $\Void$ node and the missing arcs (see
-Figure~\ref{fig:folded-form}).  Furthermore, we will transform the schema graph
-into an (infinite) tree by unfolding it starting from the $\Void$ node (see
-Figure~\ref{fig:unfolded-form}).  The unfolded tree represents the functional
-database in a universal hierarchical form.
 

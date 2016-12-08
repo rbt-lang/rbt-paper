@@ -81,7 +81,7 @@ databases, Spivak~\cite{Spivak2012} suggested using monads to encode data with
 complex structure.  Monad comprehensions~\cite{Trinder1989, Buneman1994} form
 the core of query interfaces such as Kleisli~\cite{Wong2000} and
 LINQ~\cite{Meijer2006}.  In contrast with Rabbit, which is based on Kleisli
-arrows and monadic composition, these interfaces are modeled around monadic
+arrows and monadic composition, these interfaces are designed around monadic
 containers and the monadic \emph{bind} operator.
 
 The graph representation of the database schema is a variation of the
@@ -114,23 +114,25 @@ property for a language oriented towards domain experts---if the semantics does
 not contradict the experts' intuition.
 
 In Rabbit, the intuition relies upon the hierarchical data model, which is
-simple, familiar and prolific.  For querying purposes, we view a functional
-database as a universal hierarchical document obtained by unfolding the
-database schema into a potentially infinite schema tree (e.g.,
-Figure~\ref{fig:unfolded-form}).  We learned this technique from concurrency
+simple, familiar and prolific.  For querying purposes, we view the database as
+a composite hierarchical data structure obtained by unfolding the database
+schema into a potentially infinite schema tree (e.g.,
+Figure~\ref{fig:unfolded-form}).  Although we were inspired by concurrency
 theory, where static ``system'' models are unfolded into runtime ``behavior''
-models~\cite{Nielsen1994}.  This technique has also been used to specify an
-adjunction between the network and hierarchical data
-models~\cite{Cartmell1985}.
+models~\cite{Nielsen1994}, this technique has also been used in database theory
+to relate the network and hierarchical data models~\cite{Cartmell1985}.
 
 Rabbit's query model lets us rigorously define the basic notions of data
 analysis.  Indeed, it can naturally express optional and plural relationships,
 database navigation, transitive closure of hierarchical relationships,
 aggregate, grouping and data cube operations, query parameters, and window
-functions.  All operations on data are represented as query combinators, which
-has many practical advantages.  For data analysts, it allows them to build
-queries incrementally, validating the output at each step.  For programmers, it
-dramatically simplifies GUI-driven query construction.  Finally, Rabbit may be
-adapted to a variety of application domains by extending the sets of
-primitives, combinators, and (co)monadic containers.
+functions.  Moreover, it can be easily adapted to specific application domains
+by extending the sets of primitives, combinators, and (co)monadic containers.
+
+For its users, Rabbit can provide a collaborative data processing platform.
+Database queries should be seen as artifacts of informatics
+collaboration---transparent, executable specifications that are written,
+shared, and discussed by software developers, data analysts, statisticians, and
+subject-matter experts.  We believe that compositional query semantics focused
+on data relationships can enable this dialog.
 

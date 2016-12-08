@@ -43,7 +43,7 @@ This example takes a path through
 \begin{alignat*}{3}
     & \Department && : \Void && \to \Seq{\Dept}, \\
     & \Employee && : \Dept && \to \Seq{\Emp}, \\
-    & \Name && : \Emp && \to \Text,
+    & \Name && : \Emp && \to \Text
 \end{alignat*}
 to construct a query
 \begin{equation*}
@@ -147,24 +147,22 @@ to a query combinator
     \Count(q) = a \mapsto |q(a)|.
 \end{equation*}
 
-We call $\Count$ and other unary combinators that transform a plural query to a
-singular (or optional) query \emph{aggregate} combinators.
-
-The next example follows the same pattern.
+Unary combinators that transform a plural query to a singular (or optional)
+query are called \emph{aggregate} combinators.
 
 \begin{demo}
     \label{ex:max-employee-salary}
-    Show the highest salary of all employees.
+    What is the highest employee salary?
     \begin{equation*}
         \Max(\Employee\To\Salary)
     \end{equation*}
 \end{demo}
 
-It extracts the relevant data with
+In this example, we extract the relevant data with
 \begin{equation*}
     \Employee\To\Salary : \Void \to \Seq{\Int}
 \end{equation*}
-and summarizes it using the $\Max$ aggregate
+and summarize it using the $\Max$ aggregate
 \begin{equation*}
     \Max(\Employee\To\Salary) : \Void \to \Opt{\Int}.
 \end{equation*}
@@ -173,7 +171,7 @@ no employees.
 
 \begin{demo}
     \label{ex:department-count-employee}
-    Show the number of employees in each department.
+    For each department, show the number of employees.
     \begin{equation*}
         \Department\To\Count(\Employee)
     \end{equation*}
@@ -198,12 +196,12 @@ to get \emph{the number of employees in each department}
     \Department\To\Count(\Employee) : \Void \to \Seq{\Int}.
 \end{equation*}
 
-Using the combinator $\Max$, we can further collapse this list to a single
-number, as shown in the next example.
+Applying the combinator $\Max$ to the query above, we answer the following
+question.
 
 \begin{demo}
     \label{ex:max-department-count-employee}
-    Show the size of the largest department.
+    How many employees are in the largest department?
     \begin{equation*}
         \Max(\Department\To\Count(\Employee))
     \end{equation*}
@@ -248,7 +246,7 @@ Without pipeline notation, this query is much less intelligible:
     \Desc(\Salary)),\; \Name,\; \Position,\; \Salary),\; 10).
 \end{multline*}
 
-Combinators $\Filter$, $\Sort$, $\Select$ and $\Take$ used in this query are
+The combinators $\Filter$, $\Sort$, $\Desc$, $\Select$, and $\Take$ are
 described below.
 
 \subsection*{Filtering Data}
@@ -272,9 +270,9 @@ First, the integer literal $150000$ represents a primitive query that
     150000 : \Emp \to \Int = e \mapsto 150000.
 \end{equation*}
 
-Second, the relational symbol ${>}$ denotes a binary combinator, which builds a
+Second, the relational symbol ${>}$ denotes a binary combinator that builds a
 query \emph{for a given employee, show whether their salary is higher than
-\$150000}
+\$150k}
 \begin{equation*}
     \Salary > 150000 : \Emp \to \Bool.
 \end{equation*}
@@ -305,7 +303,8 @@ produces the values of $p$ that satisfy condition $q$
     \Filter(p,\; q) = a \mapsto [\,b \mid b \gets p(a),\; q(b)=\True\,].
 \end{equation*}
 
-The following example shows how $\Filter$ could be used with other combinators.
+The following example shows how $\Filter$ could be used in tandem with
+aggregate combinators.
 
 \begin{demo}
     \label{ex:filter-by-size-and-count}
@@ -349,7 +348,7 @@ to a query combinator
 \end{demo}
 
 In this example, a list of employees is sorted by the value of the attribute
-$\Salary$, which is supplied as a second argument to the $\Sort$ combinator.
+$\Salary$, which is supplied as the second argument to the $\Sort$ combinator.
 In this form, $\Sort$ has a signature
 \begin{equation*}
     \Sort : (A \to \Seq{B},\; B \to C) \to (A \to \Seq{B}).
@@ -374,15 +373,15 @@ type definition, so that
     \Int_{\le} \quad\text{and}\quad \Int_{\ge}
 \end{equation*}
 could indicate the integer type with ascending and descending sort order
-respectively.  Then, $\Desc$ could operate by switching the sort order of the
-output type and be given a signature
+respectively.  Then, $\Desc$ could be considered a type conversion combinator
+with the signature
 \begin{equation*}
     \Desc : (A \to B) \to (A \to B_{\ge}).
 \end{equation*}
 
 \begin{demo}
     \label{ex:sort-employee-by-salary-take-top}
-    Who are the top 1\% of highest paid employees?
+    Who are the top 1\% of the highest paid employees?
     \begin{align*}
         & \Employee \\
         & \Apply\Sort(\Salary\Apply\Desc) \\
@@ -395,7 +394,7 @@ $\Take$, which has two arguments: a query that produces a sequence of employees
 \begin{equation*}
     \Employee\Apply\Sort(\Salary\Apply\Desc) : \Void \to \Seq{\Emp}
 \end{equation*}
-and a query that returns how many employees to take
+and a query that returns how many employees to keep
 \begin{equation*}
     \Count(\Employee) \div 100 : \Void \to \Int.
 \end{equation*}
@@ -409,7 +408,7 @@ case), which is reflected in the signature
 
 The combinator $\Select$ customizes the query output.
 
-Previously, we constructed a query to \emph{show the number of employees in
+Previously, we constructed a query to \emph{show the number of employees for
 each department} (see Example~\ref{ex:department-count-employee}):
 \begin{equation*}
     \Department\To\Count(\Employee).
@@ -419,7 +418,7 @@ them to their respective departments.  This is corrected in the following exampl
 
 \begin{demo}
     \label{ex:department-select-name-size}
-    For every department, show its name and the number of employees.
+    For each department, show its name and the number of employees.
     \begin{equation*}
         \Department
         \Apply\Select(\Name,\;\Size\As\Count(\Employee))
@@ -503,12 +502,12 @@ with aliases.
     \end{align*}
 \end{demo}
 
-In this example, the alias $\Size$ is created in two steps: first, the query
+In this example, the alias $\Size$ is created in two steps: first, the tag
+$\Size$ is bound to the query
 \begin{equation*}
-    \Count(\Employee): \Dept \to \Int
+    \Count(\Employee): \Dept \to \Int,
 \end{equation*}
-is tagged with the name $\Size$, and then $\Size$ is added to scope of $\Dept$
-by the combinator $\Define$.
+and then $\Size$ is added to scope of $\Dept$ by the combinator $\Define$.
 
 Although this query could have been written as
 \begin{align*}
@@ -572,7 +571,7 @@ Using expressions
     & \Manager\To\Manager\To\Manager,\; \ldots
 \end{align*}
 we can build queries that involve the manager, the manager's manager, etc.  We
-can also obtain \emph{the complete chain of command for the given employee}
+can also obtain \emph{the complete management chain for the given employee}
 with
 \begin{equation*}
     \Connect(\Manager) : \Emp \to \Seq{\Emp}.

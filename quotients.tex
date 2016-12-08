@@ -154,7 +154,7 @@ expression has a signature
     \end{alignat*}
 \end{demo}
 
-This example uses the $\Unique$ combinator to find all distinct values in a
+This example uses the $\Unique$ combinator to find all distinct entities in a
 list of departments.  The $\Unique$ combinator can be expressed via $\Group$ by
 forgetting the plural component of the quotient class.  In this example,
 $\Unique(\Employee\To\allowbreak\Department)$ is equivalent to
@@ -172,15 +172,12 @@ $\Unique(\Employee\To\allowbreak\Department)$ is equivalent to
     \end{align*}
 \end{demo}
 
-This example demonstrates how $\Group$ could be applied to a calculated
-attribute such as
+In order to apply $\Group$ to a calculated attribute, such as \emph{the level
+in the organization chart}
 \begin{equation*}
-    \Count(\Connect(\Manager)) : \Emp \to \Int.
+    \Count(\Connect(\Manager)) : \Emp \to \Int,
 \end{equation*}
-
-The $\Group$ combinator could also be applied to more than one attribute, which
-can be used for summarizing data along several dimensions.  When the summary
-data has to include subtotals and totals, we replace $\Group$ with $\Rollup$.
+we need to bind an explicit tag to this attribute.
 
 \begin{demo}
     \label{ex:rollup}
@@ -194,6 +191,10 @@ data has to include subtotals and totals, we replace $\Group$ with $\Rollup$.
         & && \Mean(\Employee\To\Salary))
     \end{alignat*}
 \end{demo}
+
+To summarize data along several dimensions, we can apply $\Group$ to more than
+one attribute.  When the summary data has to include subtotals and totals, we
+replace $\Group$ with $\Rollup$.
 
 In this example, the query
 \begin{equation*}

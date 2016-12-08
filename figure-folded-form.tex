@@ -10,11 +10,11 @@
         \node [set] (Int) [below=of Emp] {Int};
         \draw [->] (Void) to [bend right=10] node [map, right] {department} (Dept);
         \draw [->] (Void) to [bend left=10] node [map, right] {employee} (Emp);
-        \draw [->] (Dept) to [bend right=10] node [map, right] {name} (Text);
+        \draw [->] (Dept) to [bend right=5] node [map, right] {name} (Text);
         \draw [->] (Dept) to [bend right=5] node [map, below] {employee} (Emp);
-        \draw [->] (Emp) to [bend right=12] node [map, right] {\;name} (Text);
-        \draw [->] (Emp) to [bend left=12] node [map, right] {\;position} (Text);
-        \draw [->] (Emp) to [bend left=10] node [map, right] {salary} (Int);
+        \draw [->] (Emp) to [bend right=5] node [map, right] {\;name} (Text);
+        \draw [->] (Emp) to [bend left=20] node [map, right] {\;position} (Text);
+        \draw [->] (Emp) to [bend left=5] node [map, right] {salary} (Int);
         \draw [->] (Emp) to [bend right=5] node [map, above] {department} (Dept);
         \draw [->] (Emp) to [loop right,out=60,in=10,looseness=7] node [map, right] {manager} (Emp);
         \draw [->] (Emp) to [loop right,out=300,in=350,looseness=7] node [map, right] {subordinate} (Emp);

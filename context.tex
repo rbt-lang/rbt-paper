@@ -91,9 +91,9 @@ container wrapping the query input.  It could be shown that the environment is
 compatible with query composition (cf.~Section~\ref{sec:cardinality}), which
 permits us to incorporate it into the query model.
 
-Another example of a query context is the \emph{input flow}, a container of
-every input value seen by the query.  We denote this context type by $\Rel{A}$
-and its values by
+Another example of a query context is the \emph{input flow}, a container of all
+input values seen by the query.  We denote this context type by $\Rel{A}$ and
+its values by
 \begin{equation*}
     [a_1,\;\ldots,\selected{a_j},\;\ldots,\;a_n] : \Rel{A},
 \end{equation*}
@@ -109,27 +109,26 @@ Example~\ref{ex:higher-than-average-salary}.
     \end{equation*}
 \end{demobis}
 
-When a query needs to relate each value in a dataset to the dataset as a whole,
-we can use the plural primitive $\Around$, which materializes its input flow as
-a sequence:
+To relate each value in a dataset to the dataset as a whole, we use the plural
+primitive $\Around$, which materializes its input flow as a sequence:
 \begin{multline*}
     \Around : \Rel{A} \to \Seq{A} \\
     \shoveleft{\Around = [a_1,\;\ldots,\selected{a_j},\;\ldots,\;a_n]} \\
     \mapsto [a_1,\;\ldots,\;a_j,\;\ldots,\;a_n].
 \end{multline*}
-In this example, $\Around$ produces, \emph{for a given employee, a list of all
-employees}.  By composing it with $\Salary$, we get, \emph{for a given
+In this example, $\Around$ produces, \emph{for a selected employee, a list of
+all employees}.  By composing it with $\Salary$, we get, \emph{for a selected
 employee, a list of all salaries}
 \begin{equation*}
     \Around\To\Salary : \Rel{\Emp} \to \Seq{\Int},
 \end{equation*}
-which lets us determine the average salary
+which lets us establish \emph{the average salary} as a context-aware attribute
 \begin{equation*}
-    \Mean(\Around\To\Salary) : \Rel{\Emp} \to \Opt{\Num}
+    \Mean(\Around\To\Salary) : \Rel{\Emp} \to \Opt{\Num}.
 \end{equation*}
-without ever leaving the current scope.
 
 \begin{demo}
+    \label{ex:higher-than-average-salary-by-position}
     In the Police department, show employees whose salary is higher than the
     average for their position.
     \begin{align*}
@@ -146,13 +145,14 @@ using a variant of $\Around$:
     \shoveleft{\Around(q) = [a_1,\;\ldots,\selected{a_j},\;\ldots,\;a_n]} \\
     \mapsto [\,a_i \mid q(a_i)=q(a_j)\,].
 \end{multline*}
-Note the use of two separate $\Filter$ combinators.  If we merge them into one,
+Note the use of two separate $\Filter$ combinators.  If we switch them,
 $\Around(\Position)$ would list employees with the same position \emph{across
 all departments}.
 
 We can exploit the input flow to calculate running aggregates.
 
 \begin{demo}
+    \label{ex:employee-select-no-total}
     Show a numbered list of employees and their salaries along with the running
     total.
     \begin{alignat*}{3}
@@ -180,6 +180,7 @@ as well as calculate the running sum of salaries
 \end{equation*}
 
 \begin{demo}
+    \label{ex:department-frame-employee}
     For each department, show employee salaries along with the running total;
     the total should be reset at the department boundary.
     \begin{alignat*}{2}
@@ -191,8 +192,8 @@ as well as calculate the running sum of salaries
     \end{alignat*}
 \end{demo}
 
-The input flow propagates through composition, so that a query executed
-within
+The input flow propagates through composition, so that a query executed within
+the context of
 \begin{equation*}
     \Department\To\Employee : \Void \to \Seq{\Emp}
 \end{equation*}
