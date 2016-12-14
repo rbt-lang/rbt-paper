@@ -1,7 +1,7 @@
 Query Combinators
 =================
 
-[Draft of November 21, 2016](./pdf/rbt-paper-2016-11-21.pdf)
+[Draft of December 14, 2016](./pdf/rbt-paper-2016-12-14.pdf)
 
 We introduce *Rabbit*, a combinator-based query language.  Rabbit is designed
 to let data analysts and other *accidental programmers* query complex
