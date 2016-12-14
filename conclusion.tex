@@ -6,12 +6,10 @@ In this paper, we introduce a combinator-based query language, \emph{Rabbit},
 and, using the framework of (co)monads and (bi-)Kleisli arrows \cite{Moggi1991,
 Uustalu2005}, describe the denotation of database queries.
 
-The functional database model gives us the underlying category of serializable
-data.  It consists of entity classes such as $\Dept$ and $\Emp$; simple value
-types $\Void$, $\Bool$, $\Int$, $\Text$ and others; and their composites
-$\Tuple{\ldots}$, $\Opt{\ldots}$, and $\Seq{\ldots}$.  We bootstrap the query
-model by assuming that a query with input of type $A$ and output of type $B$
-can be expressed as an arrow
+The functional database model presents the database as a collection of
+extensionally defined arrows in some underlying category of serializable data.
+We bootstrap the query model by assuming that a query with the input of type
+$A$ and the output of type $B$ can be expressed in this category as an arrow
 \begin{equation*}
     A \to B.
 \end{equation*}
@@ -20,7 +18,7 @@ container and represent them as Kleisli arrows
 \begin{equation*}
     A \to \Wrap{M}{B}.
 \end{equation*}
-The containers form a family $\mathcal{M}$ of monads equipped with a
+The containers should form a family $\mathcal{M}$ of monads equipped with a
 join-semilattice structure: for any $M_1, M_2 \in \mathcal{M}$, there exists
 $M_1 \sqcup M_2 \in \mathcal{M}$ with natural injections
 \begin{equation*}
@@ -108,31 +106,38 @@ Although a few combinator-based query models have been
 proposed~\cite{Buneman1979, Bossi1984, Batory1988, Erwig1991, Cherniack1996},
 it is generally accepted that ``combinator-style languages are difficult for
 users to master and thus ill-suited as query languages''~\cite{Cherniack1996}.
-We have to disagree.  The syntax of a combinator-based DSL directly mirrors its
-semantics, making it an \emph{executable specification}.  This is an attractive
-property for a language oriented towards domain experts---if the semantics does
-not contradict the experts' intuition.
+Examples presented in this paper prove otherwise.  Moreover, the syntax of a
+combinator-based DSL directly mirrors its semantics, making it an
+\emph{executable specification}.  This is an attractive property for a language
+oriented towards domain experts---if the semantics does not contradict the
+experts' intuition.
 
 In Rabbit, the intuition relies upon the hierarchical data model, which is
 simple, familiar and prolific.  For querying purposes, we view the database as
 a composite hierarchical data structure obtained by unfolding the database
 schema into a potentially infinite schema tree (e.g.,
-Figure~\ref{fig:unfolded-form}).  Although we were inspired by concurrency
-theory, where static ``system'' models are unfolded into runtime ``behavior''
-models~\cite{Nielsen1994}, this technique has also been used in database theory
-to relate the network and hierarchical data models~\cite{Cartmell1985}.
+Figure~\ref{fig:unfolded-form}).  We were inspired by concurrency theory, where
+static ``system'' models are unfolded into runtime ``behavior''
+models~\cite{Nielsen1994}, but this technique has also been used in database
+theory to relate the network and hierarchical data models~\cite{Cartmell1985}.
 
 Rabbit's query model lets us rigorously define the basic notions of data
 analysis.  Indeed, it can naturally express optional and plural relationships,
 database navigation, transitive closure of hierarchical relationships,
 aggregate, grouping and data cube operations, query parameters, and window
-functions.  Moreover, it can be easily adapted to specific application domains
-by extending the sets of primitives, combinators, and (co)monadic containers.
+functions.  In fact, any data operation could be lifted to a query combinator.
+
+For specific application domains, Rabbit can provide an extensible query
+framework.  Applications can implement native domain operations by extending
+the sets of primitives, combinators, and (co)monadic containers.  For example,
+we adapted Rabbit to the field of medical informatics by adding graph
+operations over hierarchical ontologies and temporal operations on medical
+observations.
 
 For its users, Rabbit can provide a collaborative data processing platform.
 Database queries should be seen as artifacts of informatics
 collaboration---transparent, executable specifications that are written,
 shared, and discussed by software developers, data analysts, statisticians, and
-subject-matter experts.  We believe that compositional query semantics focused
-on data relationships can enable this dialog.
+subject-matter experts.  We believe that a compositional query model focused on
+data relationships can enable this dialog.
 

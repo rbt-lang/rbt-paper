@@ -47,14 +47,13 @@ To describe the input of query~\ref{itm:employee-set}, we introduce a
 \end{equation*}
 The type $\Void$ has a unique inhabitant ($\top:\Void$), and because there is
 no freedom in choosing a value of this type, it can designate input that can
-never affect the result of a query.  Thus, we can
+never affect the result of a query.  Using the singleton type, we can
 express~\ref{itm:employee-set} as a \emph{class} primitive
 \begin{equation*}
     \Employee : \Void \to \Seq{\Emp}.
 \end{equation*}
-Note that even though both \ref{itm:department-to-employee} and
-\ref{itm:employee-set} are denoted by the same name, we could always
-distinguish them by their input type.
+Although both \ref{itm:department-to-employee} and \ref{itm:employee-set} are
+denoted by the same name, we can still distinguish them by their input type.
 
 Unfortunately, although containers let us represent optional and plural output,
 they do not compose well.  For example, it is tempting to express \emph{for a
@@ -71,19 +70,25 @@ However, if we look at the signatures of the components
     & \Manager && : \Emp && \to \Opt{\Emp}, \quad && \Salary && : \Emp && \to \Int, \\
     & \Employee && : \Void && \to \Seq{\Emp}, \quad && \Name && : \Emp && \to \Text,
 \end{alignat*}
-we see that their intermediate domains do not agree, which means their
+we see that their intermediate types do not agree, which means their
 compositions are ill-formed.
 
-To make the queries compose again, we should distinguish between the output
-type of a query and its cardinality.\footnote{More precisely, we should
-represent cardinalities as monads and queries as their Kleisli
-arrows~\cite{Moggi1991}.} For example, we should say that
-query~\ref{itm:employee-to-manager} is an optional query from $\Emp$ to $\Emp$,
-\ref{itm:department-to-employee} is a plural query from $\Dept$ to $\Emp$, and
-\ref{itm:employee-set} is a plural query from $\Void$ to $\Emp$.  Then, any two
-queries should compose, regardless of their cardinalities, so long as they have
-compatible intermediate types; furthermore, the least upper bound of their
-cardinalities is the cardinality of their composition.
+A technique for composing queries can be found in the categorical semantics of
+computational effects~\cite{Moggi1991}.  In this semantics, a program that maps
+the input of type $A$ to the output of type $B$ is seen as a \emph{Kleisli
+arrow} $A \to \Wrap{M}{B}$, where $M$ is a \emph{monad} that encapsulates the
+program's effects.  Further, a sequential execution of programs $A \to
+\Wrap{M}{B}$ and $B \to \Wrap{M}{C}$ is represented by their \emph{monadic
+composition}, which is again a Kleisli arrow $A \to \Wrap{M}{C}$.
+
+To utilize monadic composition, we distinguish the output type of a query from
+the output container, which we call the query cardinality.  For example, we say
+that query~\ref{itm:employee-to-manager} is an optional query from $\Emp$ to
+$\Emp$, \ref{itm:department-to-employee} is a plural query from $\Dept$ to
+$\Emp$, and \ref{itm:employee-set} is a plural query from $\Void$ to $\Emp$.
+Then, any two queries should compose, regardless of their cardinalities, so
+long as they have compatible intermediate types; furthermore, the least upper
+bound of their cardinalities is the cardinality of their composition.
 
 Specifically, given two queries
 \begin{equation*}
@@ -93,9 +98,9 @@ we first promote their output to a common cardinality
 \begin{equation*}
     M = M_1 \sqcup M_2,
 \end{equation*}
-and then use the \emph{monadic composition} combinator
+and then use the monadic composition combinator
 \begin{equation*}
-    \placeholder\,\To\,\placeholder : (A \to \Wrap{M}{B},\; B \to \Wrap{M}{C}) \to (A \to \Wrap{M}{C})
+    \placeholder\,\To\,\placeholder: (A \to \Wrap{M}{B},\; B \to \Wrap{M}{C}) \to (A \to \Wrap{M}{C}).
 \end{equation*}
 to construct
 \begin{equation*}
@@ -159,22 +164,21 @@ and finally merging the nested sequences
     [c^{1}_{1}, c^{2}_{1}, \ldots, c^{1}_{2}, c^{2}_{2}, \ldots].
 \end{equation*}
 
-We are now ready to present the design of a combina\-tor-based query language.
+At last, we are ready to present the design of a com\-binator-based query
+language.
 
 \input{figure-folded-form}
 
-\begin{description}
-\item[Query model:]
-A database query is characterized by its input type $A$, its output type $B$
-and its cardinality $M$, and can be represented as a function of the form
+\textbf{Query model.} A database query is characterized by its input type $A$,
+its output type $B$ and its cardinality $M$, and can be represented as a
+function of the form
 \begin{equation*}
     p : A \to M\{B\},
 \end{equation*}
 where $M\{B\}$ is one of $B$, $\Opt{B}$ or $\Seq{B}$; the respective queries
 are called singular, optional or plural.
 
-\item[Primitives:]
-The set of primitives includes classes
+\textbf{Primitives.} The set of primitives includes classes
 \begin{alignat*}{3}
     & \Department && : \Void && \to \Seq{\Dept}, \\
     & \Employee && : \Void && \to \Seq{\Emp};
@@ -202,8 +206,7 @@ into an (infinite) tree by unfolding it starting from the $\Void$ node (see
 Figure~\ref{fig:unfolded-form}).  The unfolded tree represents the functional
 database in a \emph{universal hierarchical form}.
 
-\item[Combinators:]
-The composition combinator sends two queries
+\textbf{Combinators.} The composition combinator sends two queries
 \begin{equation*}
     p : A \to M_1\{B\}, \qquad
     q : B \to M_2\{C\}
@@ -214,8 +217,6 @@ to their composition
 \end{equation*}
 
 Other common combinators are listed in Table~\ref{tab:common-combinators}.
-They are described in the following sections.
-\end{description}
 
 \input{figure-unfolded-form}
 
